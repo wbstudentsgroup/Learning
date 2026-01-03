@@ -22,3 +22,5 @@ export const db = getFirestore(app);
 window._firebaseInited = true;
 console.log("Firebase initialized");
 
+
+
