@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-  <meta name="google-site-verification" content="vWPzVR2LgS1BRRLWZISZIsTuSbgiQNlZjlcZGINDrfY" />
+<meta name="google-site-verification" content="vWPzVR2LgS1BRRLWZISZIsTuSbgiQNlZjlcZGINDrfY" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>WB STG Learning — PW Style Platform</title>
+<title>WB STG Learning </title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <!-- Firebase Compat Libraries -->
@@ -176,7 +176,7 @@
   .page.active { display: block; animation: fadeIn 0.25s ease-in-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Hierarchy UI & Progress Bar */
+  /* Progress Bar */
   .progress-container {
     background: #1f2937;
     border-radius: 8px;
@@ -285,14 +285,14 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
 
-  /* In-App Video Player Modal Styling */
+  /* Video & PDF Player Modal Styling */
   .video-modal-box {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     padding: 16px;
     border-radius: 16px;
     width: 95%;
-    max-width: 800px;
+    max-width: 850px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.8);
   }
   .video-container {
@@ -308,6 +308,19 @@
     top: 0; left: 0;
     width: 100%; height: 100%;
     border: 0;
+  }
+
+  .pdf-container {
+    width: 100%;
+    height: 75vh;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #111827;
+  }
+  .pdf-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
   }
 
   .toast {
@@ -463,15 +476,37 @@
     </div>
   </div>
 
-  <!-- IN-APP VIDEO PLAYER MODAL -->
+  <!-- IN-APP VIDEO PLAYER MODAL WITH FULLSCREEN & NEXT BUTTONS -->
   <div class="modal-overlay" id="videoModal">
     <div class="video-modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <h3 id="videoModalTitle" style="font-size:16px; color:#f9fafb;">Watching Lecture</h3>
-        <button class="btn danger small" onclick="closeVideoModal()">✕ Close Video</button>
+        <h3 id="videoModalTitle" style="font-size:15px; color:#f9fafb; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:65%;">▶ Lecture</h3>
+        <div style="display:flex; gap:6px;">
+          <button class="btn secondary small" onclick="toggleNativeFullscreen()">⛶ Fullscreen</button>
+          <button class="btn danger small" onclick="closeVideoModal()">✕ Close</button>
+        </div>
       </div>
-      <div class="video-container">
+
+      <div class="video-container" id="videoFrameContainer">
         <iframe id="videoPlayerFrame" src="" allowfullscreen allow="autoplay"></iframe>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:12px; gap:8px;">
+        <button id="prevLecBtn" class="btn secondary small" style="flex:1" onclick="playAdjacentLecture(-1)">◄ Previous Lecture</button>
+        <button id="nextLecBtn" class="btn small" style="flex:1" onclick="playAdjacentLecture(1)">Next Lecture ►</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN-APP GOOGLE DRIVE PDF NOTES MODAL -->
+  <div class="modal-overlay" id="pdfModal">
+    <div class="video-modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 id="pdfModalTitle" style="font-size:15px; color:#f9fafb;">📖 PDF Notes Viewer</h3>
+        <button class="btn danger small" onclick="closePdfModal()">✕ Close PDF</button>
+      </div>
+      <div class="pdf-container">
+        <iframe id="pdfPlayerFrame" src="" allow="autoplay"></iframe>
       </div>
     </div>
   </div>
@@ -533,6 +568,10 @@ let coursesData = [];
 let currentUser = null;
 let activeCourseId = null;
 
+// VIDEO NAVIGATION STATE
+let currentLectureIndex = -1;
+let currentChapterLectures = [];
+
 function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.innerText = msg;
@@ -558,29 +597,79 @@ function switchPage(pageId, btnElement) {
 function openLogin() { document.getElementById('loginModal').classList.add('open'); }
 function closeLogin() { document.getElementById('loginModal').classList.remove('open'); }
 
-// IN-APP VIDEO PLAYER LOGIC
-function openInAppVideo(title, url) {
-  let embedUrl = url;
+// IN-APP VIDEO PLAYER & FULLSCREEN LOGIC
+function openInAppVideo(sIdx, cIdx, lIdx) {
+  const course = coursesData.find(c => c.id === activeCourseId);
+  if (!course || !course.subjects[sIdx] || !course.subjects[sIdx].chapters[cIdx]) return;
 
-  // Convert YouTube normal URL to Embed URL
-  if (url.includes('youtube.com/watch?v=')) {
-    const videoId = url.split('v=')[1].split('&')[0];
+  currentChapterLectures = course.subjects[sIdx].chapters[cIdx].lectures || [];
+  currentLectureIndex = lIdx;
+
+  playLectureFromList();
+  document.getElementById('videoModal').classList.add('open');
+}
+
+function playLectureFromList() {
+  if (currentLectureIndex < 0 || currentLectureIndex >= currentChapterLectures.length) return;
+
+  const lec = currentChapterLectures[currentLectureIndex];
+  let embedUrl = lec.video;
+
+  if (lec.video.includes('youtube.com/watch?v=')) {
+    const videoId = lec.video.split('v=')[1].split('&')[0];
     embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-  } else if (url.includes('youtu.be/')) {
-    const videoId = url.split('youtu.be/')[1].split('?')[0];
+  } else if (lec.video.includes('youtu.be/')) {
+    const videoId = lec.video.split('youtu.be/')[1].split('?')[0];
     embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-  } else if (url.includes('drive.google.com')) {
-    embedUrl = url.replace('/view', '/preview');
+  } else if (lec.video.includes('drive.google.com')) {
+    embedUrl = lec.video.replace('/view', '/preview');
   }
 
-  document.getElementById('videoModalTitle').innerText = '▶ ' + title;
+  document.getElementById('videoModalTitle').innerText = '▶ ' + lec.title;
   document.getElementById('videoPlayerFrame').src = embedUrl;
-  document.getElementById('videoModal').classList.add('open');
+
+  document.getElementById('prevLecBtn').disabled = (currentLectureIndex === 0);
+  document.getElementById('nextLecBtn').disabled = (currentLectureIndex === currentChapterLectures.length - 1);
+}
+
+function playAdjacentLecture(step) {
+  const newIndex = currentLectureIndex + step;
+  if (newIndex >= 0 && newIndex < currentChapterLectures.length) {
+    currentLectureIndex = newIndex;
+    playLectureFromList();
+  }
+}
+
+function toggleNativeFullscreen() {
+  const container = document.getElementById('videoFrameContainer');
+  if (!document.fullscreenElement) {
+    if (container.requestFullscreen) container.requestFullscreen();
+    else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+  }
 }
 
 function closeVideoModal() {
   document.getElementById('videoPlayerFrame').src = '';
   document.getElementById('videoModal').classList.remove('open');
+}
+
+// IN-APP GOOGLE DRIVE PDF VIEWER LOGIC
+function openInAppPdf(title, url) {
+  let embedPdfUrl = url;
+  if (url.includes('drive.google.com')) {
+    embedPdfUrl = url.replace('/view', '/preview').replace('/edit', '/preview');
+  }
+
+  document.getElementById('pdfModalTitle').innerText = '📖 Notes: ' + title;
+  document.getElementById('pdfPlayerFrame').src = embedPdfUrl;
+  document.getElementById('pdfModal').classList.add('open');
+}
+
+function closePdfModal() {
+  document.getElementById('pdfPlayerFrame').src = '';
+  document.getElementById('pdfModal').classList.remove('open');
 }
 
 // AUTH FLOW
@@ -705,7 +794,6 @@ function joinBatch(id) {
   fetchCourses();
 }
 
-// BATCH EDIT LOGIC
 function openEditModal(id) {
   const course = coursesData.find(c => c.id === id);
   if (!course) return;
@@ -786,15 +874,15 @@ function openCourseStudy(id) {
                       const lecId = `${id}_${sIdx}_${cIdx}_${lIdx}`;
                       const isDone = isLectureCompleted(lecId);
                       const safeTitle = lec.title.replace(/'/g, "\\'");
-                      const safeVideo = lec.video ? lec.video.replace(/'/g, "\\'") : '';
+                      const safeNotes = lec.notes ? lec.notes.replace(/'/g, "\\'") : '';
                       return `
                         <div class="lecture-item ${isDone ? 'completed' : ''}">
                           <div style="font-weight:600; font-size:13px">
                             ${isDone ? '✅' : '▶'} ${lec.title}
                           </div>
                           <div style="display:flex; gap:6px; align-items:center;">
-                            ${lec.video ? `<button class="btn small" onclick="openInAppVideo('${safeTitle}', '${safeVideo}')">Watch Video</button>` : ''}
-                            ${lec.notes ? `<button class="btn secondary small" onclick="window.open('${lec.notes}', '_blank')">Notes</button>` : ''}
+                            ${lec.video ? `<button class="btn small" onclick="openInAppVideo(${sIdx}, ${cIdx}, ${lIdx})">Watch Video</button>` : ''}
+                            ${lec.notes ? `<button class="btn secondary small" onclick="openInAppPdf('${safeTitle}', '${safeNotes}')">PDF Notes</button>` : ''}
                             <button class="btn ${isDone ? 'secondary' : 'success'} small" onclick="toggleLectureComplete('${lecId}')">
                               ${isDone ? 'Done' : 'Mark Done'}
                             </button>
