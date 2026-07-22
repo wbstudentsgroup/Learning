@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="google-site-verification" content="vWPzVR2LgS1BRRLWZISZIsTuSbgiQNlZjlcZGINDrfY" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>WB STG Learning </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>WB STG Learning — Ultimate PW Style Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <!-- Firebase Compat Libraries -->
@@ -295,6 +295,8 @@
     max-width: 850px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.8);
   }
+
+  /* Responsive Fullscreen Video Container */
   .video-container {
     position: relative;
     padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
@@ -308,6 +310,15 @@
     top: 0; left: 0;
     width: 100%; height: 100%;
     border: 0;
+  }
+
+  /* Native Mobile Fullscreen Styling */
+  .video-container:fullscreen, 
+  .video-container:-webkit-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    padding-bottom: 0 !important;
+    border-radius: 0 !important;
   }
 
   .pdf-container {
@@ -488,7 +499,7 @@
       </div>
 
       <div class="video-container" id="videoFrameContainer">
-        <iframe id="videoPlayerFrame" src="" allowfullscreen allow="autoplay"></iframe>
+        <iframe id="videoPlayerFrame" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
       </div>
 
       <div style="display:flex; justify-content:space-between; margin-top:12px; gap:8px;">
@@ -597,7 +608,7 @@ function switchPage(pageId, btnElement) {
 function openLogin() { document.getElementById('loginModal').classList.add('open'); }
 function closeLogin() { document.getElementById('loginModal').classList.remove('open'); }
 
-// IN-APP VIDEO PLAYER & FULLSCREEN LOGIC
+// IN-APP VIDEO PLAYER & SMART FULLSCREEN LOGIC
 function openInAppVideo(sIdx, cIdx, lIdx) {
   const course = coursesData.find(c => c.id === activeCourseId);
   if (!course || !course.subjects[sIdx] || !course.subjects[sIdx].chapters[cIdx]) return;
@@ -617,10 +628,10 @@ function playLectureFromList() {
 
   if (lec.video.includes('youtube.com/watch?v=')) {
     const videoId = lec.video.split('v=')[1].split('&')[0];
-    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`;
   } else if (lec.video.includes('youtu.be/')) {
     const videoId = lec.video.split('youtu.be/')[1].split('?')[0];
-    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`;
   } else if (lec.video.includes('drive.google.com')) {
     embedUrl = lec.video.replace('/view', '/preview');
   }
@@ -640,19 +651,40 @@ function playAdjacentLecture(step) {
   }
 }
 
+// SMART FULLSCREEN + ROTATION LOGIC FOR MOBILE
 function toggleNativeFullscreen() {
   const container = document.getElementById('videoFrameContainer');
-  if (!document.fullscreenElement) {
-    if (container.requestFullscreen) container.requestFullscreen();
-    else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+  
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (container.requestFullscreen) {
+      container.requestFullscreen();
+    } else if (container.webkitRequestFullscreen) {
+      container.webkitRequestFullscreen();
+    }
+
+    // Attempt Phone Auto-Orientation Lock (Landscape)
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('landscape').catch(() => {});
+    }
   } else {
-    if (document.exitFullscreen) document.exitFullscreen();
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+
+    if (screen.orientation && screen.orientation.unlock) {
+      screen.orientation.unlock();
+    }
   }
 }
 
 function closeVideoModal() {
   document.getElementById('videoPlayerFrame').src = '';
   document.getElementById('videoModal').classList.remove('open');
+  if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen();
+  }
 }
 
 // IN-APP GOOGLE DRIVE PDF VIEWER LOGIC
