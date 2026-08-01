@@ -44,6 +44,122 @@
     border-radius: 16px; 
     margin-bottom: 16px; 
     box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .search-card {
+    background: #0d1118;
+    border: 1px solid #171d29;
+    border-radius: 18px;
+    padding: 10px 14px;
+    margin-bottom: 22px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+  }
+  .search-card .search-inner { display: block; }
+  .search-card .search-inner .search-input-group { position: relative; width: 100%; }
+  .search-card .search-inner .search-with-icon {
+    width: 100%;
+    padding: 12px 48px 12px 16px;
+    border-radius: 999px;
+    border: 1px solid #233048;
+    background: #121823;
+    color: #e5e7eb;
+  }
+  .search-card .search-inner .search-icon-btn {
+    position: absolute;
+    top: 42%;
+    right: 12px;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+  }
+  .search-card .search-inner .search-icon-btn svg { width: 18px; height: 18px; }
+  .search-suggestions {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    background: #0d1118;
+    border: 1px solid #233048;
+    border-radius: 16px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 180ms ease, transform 180ms ease;
+    z-index: 10;
+  }
+  .search-input-group.suggestions-active .search-suggestions {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  .search-suggestion-item {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #e5e7eb;
+    cursor: pointer;
+    transition: background 150ms ease;
+  }
+  .search-suggestion-item:hover {
+    background: rgba(255,255,255,0.04);
+  }
+  .search-result-card {
+    background: #0d1322;
+    border: 1px solid #233048;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    min-height: 72px;
+  }
+  .search-result-card .result-info {
+    min-width: 0;
+    flex: 1;
+  }
+  .search-result-card .result-info strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .search-result-card .result-meta {
+    font-size: 11px;
+    color: #9ca3af;
+    line-height: 1.4;
+  }
+  .search-result-card .result-thumb {
+    width: 68px;
+    height: 68px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #111827;
+    flex-shrink: 0;
+  }
+  .search-result-card .result-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  @media(min-width: 640px) {
+    .search-result-card { padding: 14px; }
+    .search-result-card .result-thumb { width: 76px; height: 76px; }
+  }
+
+  .main-card {
+    margin-top: 0;
   }
   .brand { display: flex; align-items: center; gap: 10px; }
   .brand img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
@@ -179,6 +295,7 @@
     border-radius: 18px;
     min-height: 420px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    margin-top: 12px;
   }
   @media(min-width: 768px) { .main-card { padding: 24px; } }
 
@@ -429,6 +546,20 @@
       </div>
     </div>
 
+    <div class="search-card">
+      <div class="search-inner">
+        <div class="search-input-group">
+          <input id="globalSearchInput" class="input search-with-icon" placeholder="Search Books, Batches, Tests..." onkeydown="handleSearchInputKey(event)" />
+          <button class="search-icon-btn" onclick="runGlobalSearch()" aria-label="Search">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- MAIN APP LAYOUT -->
     <div class="wrapper">
       <nav class="sidebar">
@@ -662,6 +793,16 @@
 
               <input id="bookSubjectName" class="input" placeholder="Subject Name (Optional)" />
               <button class="btn small" onclick="uploadNewBook()" style="margin-bottom:12px;">Upload E-Book</button>
+              <p style="font-size:11px; color:#9ca3af; margin-bottom:12px;">
+                Note: If you plan to add chapters, PDF link is optional here. Direct PDF link is only required for a single-file book without chapters.
+              </p>
+
+              <hr style="border-color:#233048; margin:12px 0;" />
+              <h4 style="font-size:12px; color:#a78bfa; margin-bottom:6px;">Add Chapter to Existing Book</h4>
+              <select id="selectBookForPdfChapter" class="input"><option value="">Select Book</option></select>
+              <input id="newBookChapterTitle" class="input" placeholder="Chapter Title" />
+              <input id="newBookChapterPdfUrl" class="input" placeholder="Chapter PDF Drive Link" />
+              <button class="btn small" onclick="addBookChapter()" style="margin-bottom:12px;">Add Chapter to Book</button>
 
               <h4 style="font-size:12px; color:#34d399; margin-bottom:6px;">Uploaded Books List:</h4>
               <div id="adminBooksList"><p style="color:var(--text-muted); font-size:12px;">Loading books...</p></div>
@@ -886,6 +1027,28 @@
           </div>
         </div>
       </main>
+    </div>
+  </div>
+
+  <!-- BOOK CHAPTERS MODAL -->
+  <div class="modal-overlay" id="bookChaptersModal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3 id="chapterModalTitle" style="font-size:16px; color:#c4b5fd;">📚 Book Chapters</h3>
+        <button class="btn danger small" onclick="closeBookChaptersModal()">✕ Close</button>
+      </div>
+      <div id="bookChaptersList" style="display:flex; flex-direction:column; gap:10px; max-height:60vh; overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- SEARCH RESULTS MODAL -->
+  <div class="modal-overlay" id="searchModal">
+    <div class="modal-box" style="max-width:760px; width:100%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px;">
+        <h3 id="searchModalTitle" style="font-size:16px; color:#c4b5fd;">Search Results</h3>
+        <button class="btn danger small" onclick="closeSearchModal()">✕ Close</button>
+      </div>
+      <div id="searchResultsContainer" style="display:flex; flex-direction:column; gap:14px; max-height:65vh; overflow-y:auto;"></div>
     </div>
   </div>
 
@@ -1122,6 +1285,7 @@ const db = firebase.firestore();
 
 let coursesData = [];
 let booksData = [];
+let allTestsData = [];
 let faqsData = [];
 let currentUser = null;
 let userJoinedCourses = [];
@@ -1193,9 +1357,178 @@ function switchPage(pageId, btnElement) {
 function openLogin() { document.getElementById('loginModal').classList.add('open'); }
 function closeLogin() { document.getElementById('loginModal').classList.remove('open'); }
 
-function toggleAccordion(header) {
-  const acc = header.parentElement;
-  acc.classList.toggle('open');
+function handleSearchInputKey(event) {
+  if (event.key === 'Enter') {
+    runGlobalSearch();
+  }
+}
+
+async function updateSearchSuggestions() {
+  const query = document.getElementById('globalSearchInput').value.trim().toLowerCase();
+  const suggestionsContainer = document.getElementById('searchSuggestions');
+  const wrapper = document.getElementById('searchInputGroup');
+
+  if (!query) {
+    suggestionsContainer.innerHTML = '';
+    wrapper.classList.remove('suggestions-active');
+    return;
+  }
+
+  await ensureSearchDataLoaded();
+
+  const suggestions = [];
+  const addSuggestion = (value) => {
+    if (value && value.toLowerCase().includes(query) && !suggestions.includes(value)) {
+      suggestions.push(value);
+    }
+  };
+
+  coursesData.forEach(c => {
+    addSuggestion(c.title);
+    addSuggestion(c.category);
+    addSuggestion(c.type);
+    addSuggestion(c.desc);
+  });
+  booksData.forEach(b => {
+    addSuggestion(b.title);
+    addSuggestion(b.subject);
+    addSuggestion(b.className);
+    addSuggestion(b.stream);
+    addSuggestion(b.type);
+  });
+  allTestsData.forEach(t => {
+    addSuggestion(t.title);
+    addSuggestion(t.type);
+    addSuggestion(t.status);
+  });
+
+  const visible = suggestions.slice(0, 7);
+  suggestionsContainer.innerHTML = visible.map(item => `
+    <div class="search-suggestion-item" onclick="selectSearchSuggestion('${item.replace(/'/g, "\\'")}')">${item}</div>
+  `).join('');
+
+  if (visible.length) {
+    wrapper.classList.add('suggestions-active');
+  } else {
+    wrapper.classList.remove('suggestions-active');
+  }
+}
+
+async function ensureSearchDataLoaded() {
+  if (!coursesData.length) {
+    await fetchCourses();
+  }
+  if (!booksData.length) {
+    await fetchBooks();
+  }
+  if (!allTestsData.length) {
+    await fetchTests(true);
+  }
+}
+
+function selectSearchSuggestion(value) {
+  document.getElementById('globalSearchInput').value = value;
+  updateSearchSuggestions();
+  runGlobalSearch();
+}
+
+async function runGlobalSearch() {
+  const query = document.getElementById('globalSearchInput').value.trim();
+  if (!query) return showToast('Search term required');
+
+  await ensureSearchDataLoaded();
+
+  const lowerQuery = query.toLowerCase();
+  const courseMatches = coursesData.filter(c => {
+    return [c.title, c.desc, c.category, c.type].some(field => field && field.toString().toLowerCase().includes(lowerQuery));
+  });
+
+  const bookMatches = booksData.filter(b => {
+    return [b.title, b.subject, b.className, b.stream, b.type].some(field => field && field.toString().toLowerCase().includes(lowerQuery));
+  });
+
+  if (!allTestsData.length) {
+    await fetchTests(true);
+  }
+
+  const testMatches = allTestsData.filter(t => {
+    return [t.title, t.type, t.status, t.link].some(field => field && field.toString().toLowerCase().includes(lowerQuery));
+  });
+
+  renderSearchResults(courseMatches, bookMatches, testMatches, query);
+}
+
+function renderSearchResults(courses, books, tests, query) {
+  const container = document.getElementById('searchResultsContainer');
+  const parts = [];
+
+  parts.push(`<div style="font-size:13px; color:#9ca3af;">Showing results for <strong>"${query}"</strong></div>`);
+
+  if (courses.length) {
+    parts.push(`<div><h4 style="margin:0 0 6px 0; color:#34d399; font-size:14px;">Batches</h4>${courses.map(c => {
+      const thumb = c.image || 'https://via.placeholder.com/120x120?text=Batch';
+      return `
+        <div class="search-result-card">
+          <div class="result-info">
+            <strong>${c.title}</strong>
+            <div class="result-meta">${c.category || 'Other'} • ${c.type || 'Free'}</div>
+          </div>
+          <div class="result-thumb"><img src="${thumb}" alt="Batch Image" onerror="this.src='https://via.placeholder.com/120x120?text=Batch'"/></div>
+          <button class="btn small success" onclick="openCourseStudy('${c.id}')">Open</button>
+        </div>
+      `;
+    }).join('')}</div>`);
+  }
+
+  if (books.length) {
+    parts.push(`<div><h4 style="margin:14px 0 6px 0; color:#34d399; font-size:14px;">Books</h4>${books.map(b => {
+      const hasChapters = Array.isArray(b.chapters) && b.chapters.length > 0;
+      const hasDirectPdf = !!(b.driveUrl && b.driveUrl.trim());
+      const label = hasChapters ? 'Chapters' : hasDirectPdf ? 'Open' : 'Info';
+      const thumb = b.coverImg || 'https://via.placeholder.com/120x120?text=Book';
+      return `
+        <div class="search-result-card">
+          <div class="result-info">
+            <strong>${b.title}</strong>
+            <div class="result-meta">${b.className || 'General'}${b.subject ? ` • ${b.subject}` : ''}</div>
+          </div>
+          <div class="result-thumb"><img src="${thumb}" alt="Book Cover" onerror="this.src='https://via.placeholder.com/120x120?text=Book'"/></div>
+          <button class="btn small ${hasDirectPdf || hasChapters ? 'success' : 'secondary'}" onclick="${hasDirectPdf || hasChapters ? `openBookDetails('${b.id}')` : `showToast('PDF link not added yet. Add a link or chapters from admin.')`}">
+            ${label}
+          </button>
+        </div>
+      `;
+    }).join('')}</div>`);
+  }
+
+  if (tests.length) {
+    parts.push(`<div><h4 style="margin:14px 0 6px 0; color:#34d399; font-size:14px;">Tests</h4>${tests.map(t => {
+      const isLive = t.status === 'LIVE';
+      return `
+        <div class="course-box" style="padding:12px; background:#0d1322; border:1px solid #233048; border-radius:10px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div style="min-width:0;">
+            <strong style="font-size:13px;">${t.title}</strong>
+            <div style="font-size:11px; color:#9ca3af; margin-top:4px;">${t.type} • ${t.status}</div>
+          </div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            ${t.type === 'LINK' ? `<a href="${t.link}" target="_blank" class="btn small success">Open</a>` : isLive ? `<button class="btn small success" onclick="openTakeTestModal('${t.id}')">Start</button>` : `<span class="btn small secondary">Upcoming</span>`}
+            ${currentUser && currentUser.email === ADMIN_EMAIL ? `<button class="btn danger small" onclick="deleteTest('${t.id}'); closeSearchModal();">Delete</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('')}</div>`);
+  }
+
+  if (!courses.length && !books.length && !tests.length) {
+    parts.push(`<div style="padding:18px; background:#151d2a; border:1px solid #233048; border-radius:12px; color:#9ca3af;">No matching batches, books, or tests found.</div>`);
+  }
+
+  container.innerHTML = parts.join('');
+  document.getElementById('searchModal').classList.add('open');
+}
+
+function closeSearchModal() {
+  document.getElementById('searchModal').classList.remove('open');
 }
 
 function openFounderModal() {
@@ -1331,8 +1664,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     currentUser = JSON.parse(savedUser);
     await syncUserDataFromCloud();
   } else {
-    fetchCourses();
+    await fetchCourses();
   }
+  await fetchBooks();
   updateUserUI(currentUser);
   fetchFloatingAd();
   fetchExamDates();
@@ -1443,6 +1777,26 @@ function renderBooks() {
   container.innerHTML = filtered.map(b => {
     const defaultCover = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=600';
     const isPaid = (b.type === 'premium');
+    const hasChapters = Array.isArray(b.chapters) && b.chapters.length > 0;
+    const hasDirectPdf = !!(b.driveUrl && b.driveUrl.trim());
+
+    let buttonLabel = '';
+    let buttonClass = '';
+    let buttonAction = '';
+
+    if (hasChapters) {
+      buttonLabel = '📚 Open Chapters';
+      buttonClass = 'success';
+      buttonAction = `openBookDetails('${b.id}')`;
+    } else if (hasDirectPdf) {
+      buttonLabel = isPaid ? '🔒 Unlock Book' : '📖 Read Book';
+      buttonClass = isPaid ? 'warning' : 'success';
+      buttonAction = `openBookDetails('${b.id}')`;
+    } else {
+      buttonLabel = '⚠️ No PDF Yet';
+      buttonClass = 'secondary';
+      buttonAction = `showToast('PDF link not added yet. Add a link or chapters from admin.')`;
+    }
 
     return `
       <div class="a4-book-card">
@@ -1459,8 +1813,8 @@ function renderBooks() {
           <p style="font-size:10px; color:var(--text-muted); margin-top:2px;">Size: ${b.size || 'PDF'}</p>
         </div>
         <div style="padding:10px; padding-top:0;">
-          <button class="btn small ${isPaid ? 'warning' : 'success'}" style="width:100%; font-size:11px;" onclick="openBookPdf('${b.title}', '${b.driveUrl}', '${b.type}')">
-            ${isPaid ? '🔒 Unlock Book' : '📖 Read Book'}
+          <button class="btn small ${buttonClass}" style="width:100%; font-size:11px;" onclick="${buttonAction}">
+            ${buttonLabel}
           </button>
         </div>
       </div>
@@ -1469,10 +1823,67 @@ function renderBooks() {
 }
 
 function openBookPdf(title, url, type) {
-  if (type === 'premium' && currentUser && currentUser.email !== ADMIN_EMAIL) {
+  if (!currentUser) {
+    showToast('Login required to open this book');
+    return openLogin();
+  }
+  if (type === 'premium' && currentUser.email !== ADMIN_EMAIL) {
     return showToast('This is a Premium E-Book. Contact Helpline to unlock!');
   }
+  if (!url) return showToast('PDF link missing for this book');
   openInAppPdf(title, url);
+}
+
+function openBookDetails(bookId) {
+  if (!currentUser) {
+    showToast('Login required to view book details');
+    return openLogin();
+  }
+  const book = booksData.find(b => b.id === bookId);
+  if (!book) return showToast('Book not found');
+
+  if (book.type === 'premium' && currentUser.email !== ADMIN_EMAIL) {
+    return showToast('This is a Premium E-Book. Contact Helpline to unlock!');
+  }
+
+  const chapters = Array.isArray(book.chapters) ? book.chapters : [];
+  if (!chapters.length) {
+    return openBookPdf(book.title, book.driveUrl, book.type);
+  }
+
+  const list = document.getElementById('bookChaptersList');
+  document.getElementById('chapterModalTitle').innerText = `📚 ${book.title} Chapters`;
+
+  list.innerHTML = chapters.map((chap, idx) => `
+    <div style="background:#0d1322; padding:10px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+      <div>
+        <strong style="font-size:13px;">${idx + 1}. ${chap.title}</strong>
+        <p style="margin:4px 0 0; font-size:11px; color:#9ca3af;">PDF Link: ${chap.pdfUrl ? 'Available' : 'Not added'}</p>
+      </div>
+      <button class="btn small ${chap.pdfUrl ? 'success' : 'secondary'}" onclick="${chap.pdfUrl ? `openBookChapterPdf('${bookId}', ${idx})` : 'showToast(\'PDF link missing\')'}">
+        ${chap.pdfUrl ? 'Open PDF' : 'No PDF'}
+      </button>
+    </div>
+  `).join('');
+
+  document.getElementById('bookChaptersModal').classList.add('open');
+}
+
+function closeBookChaptersModal() {
+  document.getElementById('bookChaptersModal').classList.remove('open');
+}
+
+function openBookChapterPdf(bookId, chapterIndex) {
+  if (!currentUser) {
+    showToast('Login required to open this chapter');
+    return openLogin();
+  }
+  const book = booksData.find(b => b.id === bookId);
+  if (!book) return showToast('Book not found');
+  const chapters = Array.isArray(book.chapters) ? book.chapters : [];
+  const chap = chapters[chapterIndex];
+  if (!chap || !chap.pdfUrl) return showToast('PDF link not found');
+  openInAppPdf(chap.title || book.title, chap.pdfUrl);
 }
 
 async function uploadNewBook() {
@@ -1485,11 +1896,12 @@ async function uploadNewBook() {
   const stream = document.getElementById('bookStreamSel').value;
   const subject = document.getElementById('bookSubjectName').value.trim();
 
-  if (!title || !driveUrl) return showToast('Title and Drive Link required');
+  if (!title) return showToast('Book title is required');
 
   try {
     await db.collection('books').add({
       title, size, coverImg, driveUrl, className, type, stream, subject,
+      chapters: [],
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     showToast('E-Book Uploaded!');
@@ -1503,23 +1915,58 @@ async function uploadNewBook() {
   } catch(e) { showToast('Upload failed'); }
 }
 
+async function addBookChapter() {
+  const bookId = document.getElementById('selectBookForPdfChapter').value;
+  const chapterTitle = document.getElementById('newBookChapterTitle').value.trim();
+  const chapterUrl = document.getElementById('newBookChapterPdfUrl').value.trim();
+
+  if (!bookId || !chapterTitle || !chapterUrl) return showToast('Select Book, Chapter title and PDF link');
+
+  try {
+    const docRef = db.collection('books').doc(bookId);
+    const doc = await docRef.get();
+    if (!doc.exists) return showToast('Selected book not found');
+
+    const book = doc.data();
+    const chapters = Array.isArray(book.chapters) ? book.chapters : [];
+    chapters.push({ title: chapterTitle, pdfUrl: chapterUrl });
+
+    await docRef.update({ chapters });
+    showToast('Chapter Added to Book!');
+    document.getElementById('newBookChapterTitle').value = '';
+    document.getElementById('newBookChapterPdfUrl').value = '';
+    fetchBooks();
+    fetchAdminBooksList();
+  } catch(e) { showToast('Failed to add chapter'); }
+}
+
 async function fetchAdminBooksList() {
   const el = document.getElementById('adminBooksList');
+  const bookChapterSel = document.getElementById('selectBookForPdfChapter');
   try {
     const snap = await db.collection('books').get();
-    if (snap.empty) { el.innerHTML = '<p style="color:var(--text-muted); font-size:12px;">No books uploaded yet.</p>'; return; }
+    if (snap.empty) {
+      el.innerHTML = '<p style="color:var(--text-muted); font-size:12px;">No books uploaded yet.</p>';
+      bookChapterSel.innerHTML = '<option value="">Select Book</option>';
+      return;
+    }
 
+    let opts = '<option value="">Select Book</option>';
     el.innerHTML = snap.docs.map(d => {
       let b = d.data();
+      opts += `<option value="${d.id}">${b.title} (${b.className || 'General'})</option>`;
+      const chapterCount = Array.isArray(b.chapters) ? b.chapters.length : 0;
       return `
         <div style="background:#0d1322; padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <b style="color:#fff;">${b.title}</b> <span style="color:#c4b5fd;">(${b.className} • ${b.type||'free'})</span>
+            <b style="color:#fff;">${b.title}</b> <span style="color:#c4b5fd;">(${b.className} • ${b.type||'free'})</span><br>
+            <span style="color:#9ca3af; font-size:11px;">Chapters: ${chapterCount}</span>
           </div>
           <button class="btn danger small" onclick="deleteBook('${d.id}')">🗑️ Delete</button>
         </div>
       `;
     }).join('');
+    bookChapterSel.innerHTML = opts;
   } catch(e) {}
 }
 
@@ -1786,15 +2233,22 @@ async function createLinkTest() {
   } catch(e) { showToast('Publish failed'); }
 }
 
-async function fetchTests() {
-  const el = document.getElementById('testList');
+async function fetchTests(skipDOMUpdate = false) {
+  const snap = await db.collection('tests').orderBy('createdAt', 'desc').get();
+  allTestsData = [];
+
   try {
-    const snap = await db.collection('tests').orderBy('createdAt', 'desc').get();
+    allTestsData = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    if (skipDOMUpdate) {
+      return;
+    }
+
+    const el = document.getElementById('testList');
     if (snap.empty) { el.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">No tests available.</p>'; return; }
 
     el.innerHTML = '';
-    snap.forEach(doc => {
-      let t = doc.data();
+    allTestsData.forEach(t => {
       let isLive = t.status === 'LIVE';
 
       if (t.type === 'LINK') {
@@ -1807,7 +2261,7 @@ async function fetchTests() {
             <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Format: External Link Test</p>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
               ${isLive ? `<a href="${t.link}" target="_blank" class="btn small success">Give Test Now 🔗</a>` : '<span style="font-size:12px; color:var(--text-muted);">Upcoming Test</span>'}
-              ${currentUser && currentUser.email === ADMIN_EMAIL ? `<button class="btn danger small" onclick="deleteTest('${doc.id}')">🗑️ Delete</button>` : ''}
+              ${currentUser && currentUser.email === ADMIN_EMAIL ? `<button class="btn danger small" onclick="deleteTest('${t.id}')">🗑️ Delete</button>` : ''}
             </div>
           </div>
         `;
@@ -1820,8 +2274,8 @@ async function fetchTests() {
             </div>
             <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Format: MCQ Test (${(t.questions||[]).length} Questions • ${t.timerMins||10} Mins)</p>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-              ${isLive ? `<button class="btn small success" onclick="openTakeTestModal('${doc.id}')">Start MCQ Test</button>` : '<span style="font-size:12px; color:var(--text-muted);">Upcoming Test</span>'}
-              ${currentUser && currentUser.email === ADMIN_EMAIL ? `<button class="btn danger small" onclick="deleteTest('${doc.id}')">🗑️ Delete</button>` : ''}
+              ${isLive ? `<button class="btn small success" onclick="openTakeTestModal('${t.id}')">Start MCQ Test</button>` : '<span style="font-size:12px; color:var(--text-muted);">Upcoming Test</span>'}
+              ${currentUser && currentUser.email === ADMIN_EMAIL ? `<button class="btn danger small" onclick="deleteTest('${t.id}')">🗑️ Delete</button>` : ''}
             </div>
           </div>
         `;
@@ -2273,6 +2727,11 @@ async function deleteCourse(id) {
 
 /* STUDY VIEW & PROGRESS / MARK COMPLETE */
 function openCourseStudy(id) {
+  if (!currentUser) {
+    showToast('Login required to access this batch');
+    return openLogin();
+  }
+
   activeCourseId = id;
   const course = coursesData.find(c => c.id === id);
   if (!course) return;
@@ -2728,6 +3187,10 @@ function closeVideoModal() {
 }
 
 function openInAppPdf(title, url) {
+  if (!currentUser) {
+    showToast('Login required to view PDFs');
+    return openLogin();
+  }
   let embedPdfUrl = url;
   if (url.includes('drive.google.com')) {
     embedPdfUrl = url.replace('/view', '/preview').replace('/edit', '/preview');
