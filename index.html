@@ -28,7 +28,8 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, Helvetica, Arial, sans-serif; }
-  body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 70px; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 70px; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; overscroll-behavior: none; touch-action: manipulation; }
+  button, a, input, select, textarea, [role="button"] { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
 
   .container { max-width: 1140px; margin: 0 auto; padding: 12px; position: relative; }
   
@@ -455,6 +456,7 @@
   /* ACCORDION COLLAPSIBLE ADMIN PANELS */
   .admin-accordion { background: #151d2a; border: 1px solid #233048; border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
   .admin-accordion-header { padding: 14px; background: #1a233a; color: #c4b5fd; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+  .admin-accordion-header:hover { background: #1b2740; }
   .admin-accordion-body { padding: 14px; display: none; border-top: 1px solid #233048; background: #0d1322; }
   .admin-accordion.open .admin-accordion-body { display: block; }
 
@@ -733,10 +735,39 @@
         <div id="admin" class="page">
           <h2 style="margin-bottom:16px; font-size:19px; color:#c4b5fd;">Admin Control Panel</h2>
           
-          <!-- TOOL 1: USERS & BLOCK CONTROL -->
+          <!-- TOOL 1: ADD LECTURE CHAPTER -->
           <div class="admin-accordion">
             <div class="admin-accordion-header" onclick="toggleAccordion(this)">
-              <span>👥 Users, Batch Un-enroll & Block Control</span>
+              <span>➕ Add Lecture Chapter</span>
+              <span>▼</span>
+            </div>
+            <div class="admin-accordion-body">
+              <h4 style="font-size:12px; color:#a78bfa; margin-bottom:6px;">Add Subject:</h4>
+              <select id="selectCourseForSubject" class="input"><option value="">Select Batch First</option></select>
+              <input id="newSubjectName" class="input" placeholder="Subject Name" />
+              <button class="btn small" onclick="addSubject()" style="margin-bottom:12px;">Add Subject</button>
+
+              <h4 style="font-size:12px; color:#a78bfa; margin-bottom:6px;">Add Chapter:</h4>
+              <select id="selectCourseForChapter" class="input" onchange="updateSubjectDropdownForChapter()"><option value="">Select Batch First</option></select>
+              <select id="selectSubjectForChapter" class="input"><option value="">Select Subject First</option></select>
+              <input id="newChapterName" class="input" placeholder="Chapter Name" />
+              <button class="btn small" onclick="addChapter()" style="margin-bottom:12px;">Add Chapter</button>
+
+              <h4 style="font-size:12px; color:#a78bfa; margin-bottom:6px;">Add Lecture & PDF Notes:</h4>
+              <select id="selectCourseForLecture" class="input" onchange="updateSubjectDropdownForLecture()"><option value="">Select Batch</option></select>
+              <select id="selectSubjectForLecture" class="input" onchange="updateChapterDropdownForLecture()"><option value="">Select Subject</option></select>
+              <select id="selectChapterForLecture" class="input"><option value="">Select Chapter</option></select>
+              <input id="newLectureTitle" class="input" placeholder="Lecture Title" />
+              <input id="newLectureVideo" class="input" placeholder="Video URL" />
+              <input id="newLectureNotes" class="input" placeholder="PDF Notes Link URL (Optional)" />
+              <button class="btn small" onclick="addLecture()">Upload Lecture</button>
+            </div>
+          </div>
+
+          <!-- TOOL 2: USERS / BLOCK -->
+          <div class="admin-accordion">
+            <div class="admin-accordion-header" onclick="toggleAccordion(this)">
+              <span>👥 Users / Block</span>
               <span>▼</span>
             </div>
             <div class="admin-accordion-body">
@@ -744,7 +775,7 @@
             </div>
           </div>
 
-          <!-- TOOL 2: FAQ MANAGER -->
+          <!-- TOOL 3: FAQ MANAGER -->
           <div class="admin-accordion">
             <div class="admin-accordion-header" onclick="toggleAccordion(this)">
               <span>❓ Manage App FAQs</span>
@@ -809,10 +840,10 @@
             </div>
           </div>
 
-          <!-- TOOL 4: CREATE TEST -->
+          <!-- TOOL 4A: CREATE / EDIT TEST -->
           <div class="admin-accordion">
             <div class="admin-accordion-header" onclick="toggleAccordion(this)">
-              <span>📝 Create MCQ / Link Tests & View Results</span>
+              <span>📝 Create / Edit Tests</span>
               <span>▼</span>
             </div>
             <div class="admin-accordion-body">
@@ -861,6 +892,18 @@
                 <button class="btn small" onclick="publishMcqTest()" style="margin-bottom:12px;">Publish MCQ Test</button>
               </div>
 
+              <h4 style="font-size:12px; color:#34d399; margin-bottom:6px;">Existing Tests</h4>
+              <div id="adminTestsList"><p style="color:var(--text-muted); font-size:12px;">Loading tests...</p></div>
+            </div>
+          </div>
+
+          <!-- TOOL 4B: TEST RESULTS -->
+          <div class="admin-accordion">
+            <div class="admin-accordion-header" onclick="toggleAccordion(this)">
+              <span>📊 Test Results & Answers</span>
+              <span>▼</span>
+            </div>
+            <div class="admin-accordion-body">
               <h4 style="font-size:12px; color:#34d399; margin-bottom:6px;">Student Submissions:</h4>
               <div id="adminTestResultsList"><p style="color:var(--text-muted); font-size:12px;">Loading submissions...</p></div>
             </div>
@@ -873,7 +916,8 @@
               <span>▼</span>
             </div>
             <div class="admin-accordion-body">
-              <textarea id="newNoticeText" class="input" placeholder="Notice Message"></textarea>
+              <input id="newNoticeTitle" class="input" placeholder="Notice Title" />
+              <textarea id="newNoticeMessage" class="input" placeholder="Notice Message"></textarea>
               <input id="newNoticeLink" class="input" placeholder="Target Link URL (Optional)" />
               <button class="btn small" onclick="postNotice()">Post Announcement</button>
             </div>
@@ -890,10 +934,10 @@
             </div>
           </div>
 
-          <!-- TOOL 7: EDIT BATCHES -->
+          <!-- TOOL 8: BATCHES -->
           <div class="admin-accordion">
             <div class="admin-accordion-header" onclick="toggleAccordion(this)">
-              <span>✏️ Edit Existing Batches & Categories</span>
+              <span>🧱 Batches</span>
               <span>▼</span>
             </div>
             <div class="admin-accordion-body">
@@ -901,7 +945,7 @@
             </div>
           </div>
 
-          <!-- TOOL 8: EXAM TIMERS -->
+          <!-- TOOL 9: EXAM DATES -->
           <div class="admin-accordion">
             <div class="admin-accordion-header" onclick="toggleAccordion(this)">
               <span>⏳ Set Exam Target Dates</span>
@@ -922,7 +966,7 @@
             </div>
           </div>
 
-          <!-- TOOL 9: GRANT MANUAL PREMIUM ACCESS -->
+          <!-- TOOL 10: PREMIUM ACCESS -->
           <div class="admin-accordion">
             <div class="admin-accordion-header" onclick="toggleAccordion(this)">
               <span>🔑 Grant Premium Access to User</span>
@@ -935,19 +979,7 @@
             </div>
           </div>
 
-          <!-- TOOL 10: CONTENT TREE MANAGER -->
-          <div class="admin-accordion">
-            <div class="admin-accordion-header" onclick="toggleAccordion(this)">
-              <span>📖 Edit/Delete Subjects, Chapters & Lectures</span>
-              <span>▼</span>
-            </div>
-            <div class="admin-accordion-body">
-              <select id="selectCourseForManage" class="input" onchange="renderAdminContentManager()"><option value="">Select Batch First</option></select>
-              <div id="adminContentTree"></div>
-            </div>
-          </div>
-
-          <!-- TOOL 11: FLOATING BANNER AD -->
+          <!-- TOOL 11: ADS -->
           <div class="admin-accordion">
             <div class="admin-accordion-header" onclick="toggleAccordion(this)">
               <span>📢 Floating Banner Ad Settings</span>
@@ -987,20 +1019,22 @@
                 <option value="premium">Premium Access</option>
               </select>
 
-              <div id="newPricingBox" style="display:none; flex-direction:column;">
+              <div id="newPricingBox" style="display:none; flex-direction:column; gap:6px;">
                 <input id="newOriginalPrice" class="input" placeholder="Original Price (e.g., 2999)" type="number" />
                 <input id="newOfferPrice" class="input" placeholder="Offer Price (e.g., 999)" type="number" />
                 <input id="newQrImageUrl" class="input" placeholder="Payment QR Code Image URL" />
+                <input id="newPaymentGateway" class="input" placeholder="Payment Gateway (manual / razorpay / stripe)" />
+                <textarea id="newPaymentInstructions" class="input" placeholder="Payment Instructions for Students"></textarea>
               </div>
 
               <button class="btn small" onclick="createCourse()">Create Batch</button>
             </div>
           </div>
 
-          <!-- TOOL 13: ADD SUBJECT, CHAPTER, LECTURE -->
+          <!-- TOOL 1: ADD LECTURE CHAPTER -->
           <div class="admin-accordion">
             <div class="admin-accordion-header" onclick="toggleAccordion(this)">
-              <span>📚 Add Subjects, Chapters & Upload Lectures</span>
+              <span>➕ Add Lecture Chapter</span>
               <span>▼</span>
             </div>
             <div class="admin-accordion-body">
@@ -1023,6 +1057,18 @@
               <input id="newLectureVideo" class="input" placeholder="Video URL" />
               <input id="newLectureNotes" class="input" placeholder="PDF Notes Link URL (Optional)" />
               <button class="btn small" onclick="addLecture()">Upload Lecture</button>
+            </div>
+          </div>
+
+          <!-- TOOL 13: EDIT LECTURES -->
+          <div class="admin-accordion">
+            <div class="admin-accordion-header" onclick="toggleAccordion(this)">
+              <span>✏️ Edit Lectures</span>
+              <span>▼</span>
+            </div>
+            <div class="admin-accordion-body">
+              <select id="selectCourseForManage" class="input" onchange="renderAdminContentManager()"><option value="">Select Batch First</option></select>
+              <div id="adminContentTree"></div>
             </div>
           </div>
         </div>
@@ -1142,6 +1188,20 @@
     </div>
   </div>
 
+  <!-- NOTICE EDIT MODAL -->
+  <div class="modal-overlay" id="noticeEditModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom:14px; font-size:17px;">Edit Notice</h3>
+      <input id="editNoticeId" type="hidden" />
+      <input id="editNoticeTitle" class="input" placeholder="Notice Title" />
+      <textarea id="editNoticeMessage" class="input" placeholder="Notice Message" style="min-height:120px;"></textarea>
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px;">
+        <button class="btn secondary small" onclick="closeNoticeEditModal()">Cancel</button>
+        <button class="btn small" onclick="saveNoticeEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
   <!-- EDIT BATCH MODAL -->
   <div class="modal-overlay" id="editBatchModal">
     <div class="modal-box">
@@ -1165,9 +1225,39 @@
         <option value="free">Free Access</option>
         <option value="premium">Premium Access</option>
       </select>
+      <input id="editBatchPaymentGateway" class="input" placeholder="Payment Gateway (manual / razorpay / stripe)" />
+      <textarea id="editBatchPaymentInstructions" class="input" placeholder="Payment Instructions for Students"></textarea>
       <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px;">
         <button class="btn secondary small" onclick="closeEditModal()">Cancel</button>
         <button class="btn small" onclick="saveBatchEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT TEST MODAL -->
+  <div class="modal-overlay" id="editTestModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom:14px; font-size:17px;">Edit Test</h3>
+      <input id="editTestId" type="hidden" />
+      <input id="editTestTitle" class="input" placeholder="Test Title" />
+      <select id="editTestStatus" class="input">
+        <option value="LIVE">LIVE</option>
+        <option value="UPCOMING">UPCOMING</option>
+      </select>
+
+      <div id="editTestLinkFields">
+        <input id="editTestLink" class="input" placeholder="Test Link URL" />
+      </div>
+
+      <div id="editTestMcqFields" style="display:none;">
+        <input id="editTestTimer" class="input" placeholder="Timer in Minutes" type="number" min="1" />
+        <textarea id="editTestQuestions" class="input" placeholder="Questions (one per line): Question | Option A | Option B | Option C | Option D | CorrectOption" style="min-height:140px;"></textarea>
+        <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">Format: Question | Option A | Option B | Option C | Option D | CorrectOption</p>
+      </div>
+
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px;">
+        <button class="btn secondary small" onclick="closeTestEditModal()">Cancel</button>
+        <button class="btn small" onclick="saveTestEdit()">Save Changes</button>
       </div>
     </div>
   </div>
@@ -1283,13 +1373,34 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char]);
+}
+
+function getUserDocId(email) {
+  return String(email || '').replace(/\./g, '_');
+}
+
 let coursesData = [];
 let booksData = [];
 let allTestsData = [];
 let faqsData = [];
+let currentNoticesData = [];
+
+cleanupOldTestResults().catch(() => {});
 let currentUser = null;
 let userJoinedCourses = [];
 let userCompletedLectures = [];
+
+function isAdminUser() {
+  return !!currentUser && (currentUser.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase();
+}
 
 let activeCourseId = null;
 let currentFilterCategory = 'ALL';
@@ -1332,6 +1443,18 @@ function showToast(msg) {
   toast.innerText = msg;
   toast.style.display = 'block';
   setTimeout(() => { toast.style.display = 'none'; }, 2400);
+}
+
+function toggleAccordion(header) {
+  const accordion = header && header.closest ? header.closest('.admin-accordion') : null;
+  if (!accordion) return;
+
+  const isOpen = accordion.classList.contains('open');
+  document.querySelectorAll('.admin-accordion').forEach(item => item.classList.remove('open'));
+
+  if (!isOpen) {
+    accordion.classList.add('open');
+  }
 }
 
 function switchPage(pageId, btnElement) {
@@ -1630,6 +1753,7 @@ async function syncUserDataFromCloud() {
     }
   } catch(e) {}
   fetchCourses();
+  fetchTests();
 }
 
 function updateUserUI(user) {
@@ -1655,6 +1779,7 @@ function logoutUser() {
   updateUserUI(null);
   showToast('Logged Out!');
   fetchCourses();
+  fetchTests();
   switchPage('home');
 }
 
@@ -1667,6 +1792,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     await fetchCourses();
   }
   await fetchBooks();
+  await fetchTests();
   updateUserUI(currentUser);
   fetchFloatingAd();
   fetchExamDates();
@@ -2233,12 +2359,46 @@ async function createLinkTest() {
   } catch(e) { showToast('Publish failed'); }
 }
 
+function renderAdminTestsList() {
+  const el = document.getElementById('adminTestsList');
+  if (!el) return;
+
+  if (!isAdminUser()) {
+    el.innerHTML = '<p style="color:var(--text-muted); font-size:12px;">Login as admin to manage tests.</p>';
+    return;
+  }
+
+  if (!allTestsData.length) {
+    el.innerHTML = '<p style="color:var(--text-muted); font-size:12px;">No tests created yet.</p>';
+    return;
+  }
+
+  el.innerHTML = allTestsData.map(t => {
+    const isLive = t.status === 'LIVE';
+    return `
+      <div style="background:#0d1322; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #233048;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#fff;">${escapeHtml(t.title || 'Untitled Test')}</div>
+            <div style="font-size:11px; color:${isLive ? '#34d399' : '#f59e0b'}; margin-top:3px;">${escapeHtml(t.status || 'LIVE')}</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn warning small" onclick="openTestEditModal('${t.id}')">✏️ Edit</button>
+            <button class="btn danger small" onclick="deleteTest('${t.id}')">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 async function fetchTests(skipDOMUpdate = false) {
   const snap = await db.collection('tests').orderBy('createdAt', 'desc').get();
   allTestsData = [];
 
   try {
     allTestsData = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    renderAdminTestsList();
 
     if (skipDOMUpdate) {
       return;
@@ -2261,7 +2421,11 @@ async function fetchTests(skipDOMUpdate = false) {
             <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Format: External Link Test</p>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
               ${isLive ? `<a href="${t.link}" target="_blank" class="btn small success">Give Test Now 🔗</a>` : '<span style="font-size:12px; color:var(--text-muted);">Upcoming Test</span>'}
-              ${currentUser && currentUser.email === ADMIN_EMAIL ? `<button class="btn danger small" onclick="deleteTest('${t.id}')">🗑️ Delete</button>` : ''}
+              ${isAdminUser() ? `
+                <div style="display:flex; gap:6px;">
+                  <button class="btn warning small" onclick="openTestEditModal('${t.id}')">✏️ Edit</button>
+                  <button class="btn danger small" onclick="deleteTest('${t.id}')">🗑️ Delete</button>
+                </div>` : ''}
             </div>
           </div>
         `;
@@ -2275,7 +2439,11 @@ async function fetchTests(skipDOMUpdate = false) {
             <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Format: MCQ Test (${(t.questions||[]).length} Questions • ${t.timerMins||10} Mins)</p>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
               ${isLive ? `<button class="btn small success" onclick="openTakeTestModal('${t.id}')">Start MCQ Test</button>` : '<span style="font-size:12px; color:var(--text-muted);">Upcoming Test</span>'}
-              ${currentUser && currentUser.email === ADMIN_EMAIL ? `<button class="btn danger small" onclick="deleteTest('${t.id}')">🗑️ Delete</button>` : ''}
+              ${isAdminUser() ? `
+                <div style="display:flex; gap:6px;">
+                  <button class="btn warning small" onclick="openTestEditModal('${t.id}')">✏️ Edit</button>
+                  <button class="btn danger small" onclick="deleteTest('${t.id}')">🗑️ Delete</button>
+                </div>` : ''}
             </div>
           </div>
         `;
@@ -2335,45 +2503,256 @@ async function submitMcqTest() {
 
   const questions = activeTestDoc.questions || [];
   let scoreCount = 0;
+  const questionResults = [];
 
   questions.forEach((item, idx) => {
     const sel = document.querySelector(`input[name="q_${idx}"]:checked`);
-    if (sel && sel.value === item.ans) scoreCount++;
+    const selectedValue = sel ? sel.value : null;
+    const isCorrect = selectedValue === item.ans;
+    if (isCorrect) scoreCount++;
+
+    questionResults.push({
+      question: item.q,
+      selected: selectedValue,
+      correctAnswer: item.ans,
+      options: {
+        A: item.a,
+        B: item.b,
+        C: item.c,
+        D: item.d
+      },
+      isCorrect
+    });
   });
 
-  let percent = Math.round((scoreCount / questions.length) * 100);
+  let percent = questions.length ? Math.round((scoreCount / questions.length) * 100) : 0;
 
   try {
     await db.collection('testResults').add({
+      testId: activeTestDoc.id,
       testTitle: activeTestDoc.title,
-      username: currentUser.name,
+      username: currentUser.name || currentUser.email,
       userEmail: currentUser.email,
       score: percent,
       details: `${scoreCount}/${questions.length} Correct`,
-      submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+      questionResults,
+      totalQuestions: questions.length,
+      submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      submittedAtMs: Date.now()
     });
 
     showToast(`Test Submitted! Score: ${percent}% (${scoreCount}/${questions.length})`);
     document.getElementById('takeTestModal').classList.remove('open');
+    cleanupOldTestResults().catch(() => {});
   } catch(e) { showToast('Submission error'); }
+}
+
+async function cleanupOldTestResults() {
+  try {
+    const cutoffMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const snap = await db.collection('testResults').where('submittedAtMs', '<', cutoffMs).get();
+    if (snap.empty) return;
+
+    const batch = db.batch();
+    snap.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+  } catch (e) {
+    console.error('Cleanup failed:', e);
+  }
 }
 
 async function fetchAdminTestResults() {
   const el = document.getElementById('adminTestResultsList');
   try {
-    const snap = await db.collection('testResults').orderBy('submittedAt', 'desc').get();
+    await cleanupOldTestResults();
+    const snap = await db.collection('testResults').get();
     if (snap.empty) { el.innerHTML = '<p style="color:var(--text-muted); font-size:12px;">No results submitted.</p>'; return; }
 
-    el.innerHTML = snap.docs.map(d => {
-      let r = d.data();
+    const results = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => {
+        const aTime = a.submittedAtMs || (a.submittedAt && a.submittedAt.toDate ? a.submittedAt.toDate().getTime() : 0);
+        const bTime = b.submittedAtMs || (b.submittedAt && b.submittedAt.toDate ? b.submittedAt.toDate().getTime() : 0);
+        return bTime - aTime;
+      });
+
+    const groupedByStudent = results.reduce((acc, r) => {
+      const key = `${r.userEmail || ''}-${r.username || ''}`;
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(r);
+      return acc;
+    }, {});
+
+    const cards = Object.entries(groupedByStudent).map(([key, entries]) => {
+      const latest = entries[0];
+      const groupedByTest = entries.reduce((acc, entry) => {
+        const testKey = entry.testTitle || 'Untitled Test';
+        if (!acc[testKey]) acc[testKey] = [];
+        acc[testKey].push(entry);
+        return acc;
+      }, {});
+
+      const studentSummary = entries.reduce((total, entry) => {
+        const q = Array.isArray(entry.questionResults) ? entry.questionResults : [];
+        return total + q.filter(item => item.isCorrect).length;
+      }, 0);
+
+      const studentTotal = entries.reduce((total, entry) => {
+        const q = Array.isArray(entry.questionResults) ? entry.questionResults : [];
+        return total + q.length;
+      }, 0);
+
+      const studentOverall = `${studentSummary}/${studentTotal} Correct`;
+
+      const testCards = Object.entries(groupedByTest).map(([testName, testEntries]) => {
+        const testDetails = testEntries.map((entry) => {
+          const entryQuestionResults = Array.isArray(entry.questionResults) ? entry.questionResults : [];
+          const entryBreakdown = entryQuestionResults.map((q, qIdx) => {
+            const selectedLabel = q.selected ? `${q.selected}) ${q.options?.[q.selected] || ''}` : 'Not answered';
+            const correctLabel = q.correctAnswer ? `${q.correctAnswer}) ${q.options?.[q.correctAnswer] || ''}` : 'No correct answer';
+            return `
+              <div style="margin-top:6px; padding:7px; border-radius:6px; background:#111827; border:1px solid #233048;">
+                <div style="font-size:11px; color:${q.isCorrect ? '#34d399' : '#f87171'}; font-weight:700;">${q.isCorrect ? '✓' : '✗'} ${qIdx + 1}. ${escapeHtml(q.question || 'Question')}</div>
+                <div style="font-size:11px; color:#9ca3af; margin-top:3px;">Your answer: ${escapeHtml(selectedLabel)}<br>Correct answer: ${escapeHtml(correctLabel)}</div>
+              </div>
+            `;
+          }).join('');
+
+          const entrySummary = entry.details || `${entryQuestionResults.filter(q => q.isCorrect).length}/${entryQuestionResults.length || 0} Correct`;
+          return `
+            <div style="margin-top:8px; padding:8px; border-radius:8px; background:#0b1220; border:1px solid #1f293d;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+                <div>
+                  <div style="font-size:11px; color:#34d399; font-weight:700;">${escapeHtml(entry.score || 0)}% (${escapeHtml(entrySummary)})</div>
+                </div>
+                <button class="btn danger small" onclick="deleteTestResult('${entry.id}')">🗑️ Delete</button>
+              </div>
+              ${entryBreakdown ? `<div style="margin-top:6px;">${entryBreakdown}</div>` : ''}
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div style="margin-top:8px; border:1px solid #233048; border-radius:8px; overflow:hidden; background:#0d1322;">
+            <div style="padding:8px 10px; background:#111827; font-size:12px; color:#c4b5fd; font-weight:700;">${escapeHtml(testName)}</div>
+            <div style="padding:8px 10px;">${testDetails}</div>
+          </div>
+        `;
+      }).join('');
+
       return `
-        <div style="background:#0d1322; padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px;">
-          <b style="color:#fff;">${r.username}</b> (${r.userEmail})<br>
-          Test: <span style="color:#a78bfa;">${r.testTitle}</span> | Result: <b style="color:#34d399">${r.score}% (${r.details||''})</b>
+        <div style="background:#0d1322; padding:10px; border-radius:8px; margin-bottom:8px; font-size:12px; border:1px solid #233048;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+            <div>
+              <b style="color:#fff;">${escapeHtml(latest.username || 'Unknown')}</b> (${escapeHtml(latest.userEmail || 'Unknown')})<br>
+              <span style="color:#c4b5fd;">Overall: ${escapeHtml(latest.score || 0)}% (${escapeHtml(studentOverall)})</span>
+            </div>
+            <button class="btn small secondary" data-result-toggle="${key}">View Answers</button>
+          </div>
+          <div id="result-details-${key.replace(/[^a-z0-9]/gi, '-')}" style="display:none; margin-top:8px;">${testCards}</div>
         </div>
       `;
     }).join('');
+
+    el.innerHTML = cards;
+    el.querySelectorAll('[data-result-toggle]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-result-toggle');
+        const target = document.getElementById(`result-details-${targetId.replace(/[^a-z0-9]/gi, '-')}`);
+        if (target) {
+          target.style.display = target.style.display === 'block' ? 'none' : 'block';
+        }
+      });
+    });
+  } catch(e) {
+    console.error('Failed to load test results:', e);
+    el.innerHTML = '<p style="color:var(--text-muted); font-size:12px;">Could not load results right now.</p>';
+  }
+}
+
+async function deleteTestResult(id) {
+  if (!confirm('Delete this result permanently?')) return;
+  try {
+    await db.collection('testResults').doc(id).delete();
+    showToast('Result Deleted');
+    fetchAdminTestResults();
   } catch(e) {}
+}
+
+function openTestEditModal(id) {
+  const test = allTestsData.find(t => t.id === id);
+  if (!test) return;
+
+  document.getElementById('editTestId').value = test.id;
+  document.getElementById('editTestTitle').value = test.title || '';
+  document.getElementById('editTestStatus').value = test.status || 'LIVE';
+  document.getElementById('editTestLink').value = test.link || '';
+  document.getElementById('editTestTimer').value = test.timerMins || 10;
+  document.getElementById('editTestQuestions').value = '';
+
+  const mcqFields = document.getElementById('editTestMcqFields');
+  const linkFields = document.getElementById('editTestLinkFields');
+
+  if (test.type === 'MCQ') {
+    linkFields.style.display = 'none';
+    mcqFields.style.display = 'block';
+    if (Array.isArray(test.questions)) {
+      document.getElementById('editTestQuestions').value = test.questions.map(q => {
+        const parts = [q.q || '', q.a || '', q.b || '', q.c || '', q.d || '', q.ans || ''];
+        return parts.join(' | ');
+      }).join('\n');
+    }
+  } else {
+    linkFields.style.display = 'block';
+    mcqFields.style.display = 'none';
+  }
+
+  document.getElementById('editTestModal').classList.add('open');
+}
+
+function closeTestEditModal() {
+  document.getElementById('editTestModal').classList.remove('open');
+}
+
+async function saveTestEdit() {
+  const id = document.getElementById('editTestId').value;
+  const title = document.getElementById('editTestTitle').value.trim();
+  const status = document.getElementById('editTestStatus').value;
+
+  if (!id || !title) return showToast('Title is required');
+
+  const test = allTestsData.find(t => t.id === id);
+  if (!test) return showToast('Test not found');
+
+  try {
+    if (test.type === 'MCQ') {
+      const raw = document.getElementById('editTestQuestions').value.trim();
+      const questions = raw ? raw.split(/\n+/).map(line => {
+        const parts = line.split('|').map(p => p.trim());
+        if (parts.length < 6) return null;
+        return { q: parts[0], a: parts[1], b: parts[2], c: parts[3], d: parts[4], ans: parts[5] };
+      }).filter(Boolean) : [];
+
+      if (!questions.length) return showToast('Add at least one question');
+
+      await db.collection('tests').doc(id).update({
+        title,
+        status,
+        timerMins: parseInt(document.getElementById('editTestTimer').value) || 10,
+        questions
+      });
+    } else {
+      const link = document.getElementById('editTestLink').value.trim();
+      if (!link) return showToast('Link is required');
+      await db.collection('tests').doc(id).update({ title, status, link });
+    }
+
+    showToast('Test Updated');
+    closeTestEditModal();
+    await fetchTests();
+  } catch (e) {
+    showToast('Failed to update test');
+  }
 }
 
 async function deleteTest(id) {
@@ -2381,7 +2760,7 @@ async function deleteTest(id) {
   try {
     await db.collection('tests').doc(id).delete();
     showToast('Test Deleted');
-    fetchTests();
+    await fetchTests();
   } catch(e) {}
 }
 
@@ -2410,20 +2789,25 @@ function renderStudentPerformance() {
 
 // NOTICES SYSTEM
 async function postNotice() {
-  const text = document.getElementById('newNoticeText').value.trim();
+  const title = document.getElementById('newNoticeTitle').value.trim();
+  const message = document.getElementById('newNoticeMessage').value.trim();
   const link = document.getElementById('newNoticeLink').value.trim();
 
-  if (!text) return showToast('Notice message is required');
+  if (!title || !message) return showToast('Notice title and message are required');
 
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
   try {
     await db.collection('notices').add({
-      text, link, date: dateStr,
+      title,
+      message,
+      link,
+      date: dateStr,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     showToast('Announcement Posted!');
-    document.getElementById('newNoticeText').value = '';
+    document.getElementById('newNoticeTitle').value = '';
+    document.getElementById('newNoticeMessage').value = '';
     document.getElementById('newNoticeLink').value = '';
     fetchNotices();
   } catch(e) { showToast('Posting failed'); }
@@ -2435,23 +2819,50 @@ async function fetchNotices() {
     const snap = await db.collection('notices').orderBy('createdAt', 'desc').get();
     if (snap.empty) { el.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">No announcements posted.</p>'; return; }
 
-    let notices = [];
-    snap.forEach(d => notices.push({ id: d.id, ...d.data() }));
+    currentNoticesData = [];
+    snap.forEach(d => currentNoticesData.push({ id: d.id, ...d.data() }));
 
-    el.innerHTML = notices.map((n, idx) => `
+    el.innerHTML = currentNoticesData.map((n, idx) => `
       <div class="notice-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:8px;">
           <div>
             ${idx < 3 ? '<span class="badge-new-gif">NEW</span>' : ''}
             <span style="font-size:11px; color:var(--text-muted);">📅 ${n.date || 'Recent'}</span>
           </div>
-          ${currentUser && currentUser.email === ADMIN_EMAIL ? `<button class="btn danger small" onclick="deleteNotice('${n.id}')">🗑️</button>` : ''}
+          ${isAdminUser() ? `<div style="display:flex; gap:6px;"><button class="btn warning small" onclick="openNoticeEditModal('${n.id}')">✏️</button><button class="btn danger small" onclick="deleteNotice('${n.id}')">🗑️</button></div>` : ''}
         </div>
-        <p style="font-size:13px; color:#fff; line-height:1.4;">${n.text}</p>
+        <h4 style="font-size:14px; color:#fff; margin:0 0 6px 0;">${escapeHtml(n.title || 'Notice')}</h4>
+        <p style="font-size:13px; color:#fff; line-height:1.4;">${escapeHtml(n.message || '')}</p>
         ${n.link ? `<a href="${n.link}" target="_blank" class="btn small secondary" style="margin-top:8px; font-size:11px; padding:4px 10px;">🔗 Open Link</a>` : ''}
       </div>
     `).join('');
   } catch(e) { el.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">Could not load notices.</p>'; }
+}
+
+function openNoticeEditModal(id) {
+  const notice = currentNoticesData.find(n => n.id === id);
+  if (!notice) return;
+  document.getElementById('editNoticeId').value = notice.id;
+  document.getElementById('editNoticeTitle').value = notice.title || '';
+  document.getElementById('editNoticeMessage').value = notice.message || '';
+  document.getElementById('noticeEditModal').classList.add('open');
+}
+
+function closeNoticeEditModal() {
+  document.getElementById('noticeEditModal').classList.remove('open');
+}
+
+async function saveNoticeEdit() {
+  const id = document.getElementById('editNoticeId').value;
+  const title = document.getElementById('editNoticeTitle').value.trim();
+  const message = document.getElementById('editNoticeMessage').value.trim();
+  if (!id || !title || !message) return showToast('Title and message are required');
+  try {
+    await db.collection('notices').doc(id).update({ title, message });
+    showToast('Notice Updated!');
+    closeNoticeEditModal();
+    fetchNotices();
+  } catch(e) { showToast('Update failed'); }
 }
 
 async function deleteNotice(id) {
@@ -2703,11 +3114,13 @@ async function saveBatchEdit() {
   const image = document.getElementById('editBatchImage').value.trim();
   const category = document.getElementById('editBatchCategory').value;
   const type = document.getElementById('editBatchType').value;
+  const paymentGateway = document.getElementById('editBatchPaymentGateway').value.trim();
+  const paymentInstructions = document.getElementById('editBatchPaymentInstructions').value.trim();
 
   if (!title) return showToast('Batch Title Required');
 
   try {
-    await db.collection('courses').doc(id).update({ title, desc, image, category, type });
+    await db.collection('courses').doc(id).update({ title, desc, image, category, type, paymentGateway, paymentInstructions });
     showToast('Batch Updated Successfully!');
     closeEditModal();
     await fetchCourses();
@@ -2922,9 +3335,12 @@ async function fetchUsersList() {
               <span style="color:var(--text-muted);">(${u.email})</span>
               ${u.blocked ? '<span style="color:#ef4444; font-weight:700; margin-left:6px;">[BLOCKED]</span>' : ''}
             </div>
-            <button class="btn ${u.blocked ? 'success' : 'danger'} small" onclick="toggleUserBlock('${u.email}', ${!u.blocked})">
-              ${u.blocked ? 'Unblock' : 'Block'}
-            </button>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="btn ${u.blocked ? 'success' : 'danger'} small" onclick="toggleUserBlock('${u.email}', ${!u.blocked})">
+                ${u.blocked ? 'Unblock' : 'Block'}
+              </button>
+              <button class="btn secondary small" onclick="deleteUserAccount('${u.email}')">Delete</button>
+            </div>
           </div>
           <div style="margin-top:6px; color:#a78bfa;">
             <b>Enrolled Batches:</b> ${enrolledHtml}
@@ -2939,7 +3355,7 @@ async function unenrollUser(email, courseId) {
   if (!confirm(`Remove user ${email} from this batch?`)) return;
 
   try {
-    const userRef = db.collection('users').doc(email.replace(/\./g, '_'));
+    const userRef = db.collection('users').doc(getUserDocId(email));
     const doc = await userRef.get();
     if (doc.exists) {
       let joined = doc.data().joinedCourses || [];
@@ -2953,10 +3369,19 @@ async function unenrollUser(email, courseId) {
 
 async function toggleUserBlock(email, blockState) {
   try {
-    await db.collection('users').doc(email.replace(/\./g, '_')).update({ blocked: blockState });
+    await db.collection('users').doc(getUserDocId(email)).update({ blocked: blockState });
     showToast(blockState ? 'User Blocked!' : 'User Unblocked!');
     fetchUsersList();
   } catch(e) { showToast('Action failed'); }
+}
+
+async function deleteUserAccount(email) {
+  if (!confirm(`Delete user ${email} permanently?`)) return;
+  try {
+    await db.collection('users').doc(getUserDocId(email)).delete();
+    showToast('User Deleted');
+    fetchUsersList();
+  } catch(e) { showToast('Delete failed'); }
 }
 
 async function grantPremiumAccess() {
@@ -3222,6 +3647,8 @@ async function createCourse() {
   const originalPrice = document.getElementById('newOriginalPrice').value.trim();
   const offerPrice = document.getElementById('newOfferPrice').value.trim();
   const qrImageUrl = document.getElementById('newQrImageUrl').value.trim();
+  const paymentGateway = document.getElementById('newPaymentGateway').value.trim();
+  const paymentInstructions = document.getElementById('newPaymentInstructions').value.trim();
 
   if (!title) return showToast('Batch Title Required');
 
@@ -3230,7 +3657,7 @@ async function createCourse() {
       title, desc, image, 
       category: category === 'ALL' ? 'Other' : category, 
       type,
-      originalPrice, offerPrice, qrImageUrl,
+      originalPrice, offerPrice, qrImageUrl, paymentGateway, paymentInstructions,
       subjects: [],
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
