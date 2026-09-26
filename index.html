@@ -567,6 +567,75 @@
   .pdf-container iframe { width: 100%; height: 100%; border: none; }
 
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; display: none; z-index: 100000; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4); white-space: nowrap; }
+
+/* =========================================================
+   MODERN EXAM QUESTION UI — IMAGE / MATCH / ASSERTION-REASON
+   ========================================================= */
+.exam-question-stage{width:100%}
+.exam-question-number{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;margin-bottom:18px;color:#c4b5fd;background:rgba(139,92,246,.10);border:1px solid rgba(139,92,246,.25);border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.8px}
+.exam-question-text{color:#f9fafb;font-size:clamp(17px,2.5vw,23px);line-height:1.6;font-weight:700;white-space:pre-line;overflow-wrap:anywhere}
+.exam-image-wrapper{position:relative;width:100%;margin:20px 0;padding:10px;display:flex;flex-direction:column;align-items:center;background:#0d1322;border:1px solid #2b3850;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.03)}
+.exam-image-wrapper img.exam-image{display:block;width:auto;max-width:100%;height:auto;max-height:min(320px,48vh);object-fit:contain;border-radius:10px;background:#fff;cursor:zoom-in;transition:transform .2s ease,box-shadow .2s ease}
+.exam-image-wrapper img.exam-image:hover{transform:scale(1.01);box-shadow:0 8px 25px rgba(0,0,0,.25)}
+.exam-image-zoom-btn{margin-top:9px;border:1px solid #374151;background:#172033;color:#d1d5db;border-radius:999px;padding:7px 13px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s ease}
+.exam-image-zoom-btn:hover{background:#25314a;border-color:#8b5cf6;color:#fff}
+.exam-image-error{width:100%;min-height:130px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7px;color:#9ca3af;text-align:center;font-size:12px}
+.exam-image-error-icon{font-size:28px}
+.exam-image-modal{position:fixed;inset:0;z-index:100010;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.90);backdrop-filter:blur(8px)}
+.exam-image-modal.open{display:flex}
+.exam-image-modal-content{position:relative;width:min(1100px,100%);height:min(90vh,900px);display:flex;align-items:center;justify-content:center;padding:45px 15px 15px;background:#0b0f19;border:1px solid #374151;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+.exam-image-modal-content img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;background:#fff}
+.exam-image-modal-close{position:absolute;top:10px;right:12px;width:36px;height:36px;border:1px solid #374151;border-radius:50%;background:#1f2937;color:#fff;font-size:18px;cursor:pointer;display:grid;place-items:center}
+.exam-image-modal-close:hover{background:#374151}
+.exam-match-wrapper{margin-top:20px}.exam-match-heading{margin-bottom:10px;color:#9ca3af;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+.exam-match-grid{display:grid;grid-template-columns:1fr 1fr;overflow:hidden;border:1px solid #29354a;border-radius:16px;background:#0d1322;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.exam-match-column{min-width:0}.exam-match-column:first-child{border-right:1px solid #29354a}
+.exam-match-header{padding:13px 15px;background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(139,92,246,.12));border-bottom:1px solid #29354a;color:#dbeafe;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px}
+.exam-match-item{display:flex;align-items:flex-start;gap:10px;padding:13px 14px;color:#e5e7eb;font-size:14px;line-height:1.5;border-bottom:1px solid rgba(55,65,81,.55)}
+.exam-match-item:nth-child(even){background:rgba(255,255,255,.025)}.exam-match-item:last-child{border-bottom:0}
+.exam-match-badge{flex:0 0 30px;width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:rgba(139,92,246,.13);border:1px solid rgba(139,92,246,.35);color:#c4b5fd;font-size:11px;font-weight:900}
+.exam-match-item-content{min-width:0;flex:1;white-space:pre-line;overflow-wrap:anywhere}
+.exam-match-options{display:grid;gap:10px;margin-top:20px}.exam-match-option{width:100%;display:flex;align-items:center;gap:11px;padding:14px;color:#e5e7eb;background:#111827;border:1px solid #374151;border-radius:13px;text-align:left;cursor:pointer;transition:border-color .2s,background .2s,transform .15s}
+.exam-match-option:hover{background:#172033;border-color:#6366f1;transform:translateY(-1px)}.exam-match-option.selected{background:rgba(139,92,246,.15);border-color:#8b5cf6}
+.exam-match-radio{width:19px;height:19px;flex:0 0 19px;border:2px solid #6b7280;border-radius:50%;display:grid;place-items:center}.exam-match-option.selected .exam-match-radio{border-color:#8b5cf6}.exam-match-option.selected .exam-match-radio:after{content:"";width:9px;height:9px;border-radius:50%;background:#8b5cf6}.exam-match-option-label{font-weight:800;color:#c4b5fd}
+.exam-ar-wrapper{margin-top:20px;display:grid;gap:12px}.exam-ar-card{padding:16px 17px;border-radius:15px;line-height:1.6;font-size:15px;box-shadow:0 6px 20px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.03)}
+.exam-ar-card.assertion{background:linear-gradient(135deg,rgba(37,99,235,.14),rgba(30,64,175,.06));border:1px solid rgba(59,130,246,.4)}.exam-ar-card.reason{background:linear-gradient(135deg,rgba(245,158,11,.13),rgba(124,58,237,.06));border:1px solid rgba(245,158,11,.35)}
+.exam-ar-badge{display:inline-flex;align-items:center;margin-bottom:8px;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:900}.exam-ar-card.assertion .exam-ar-badge{background:rgba(59,130,246,.16);color:#93c5fd}.exam-ar-card.reason .exam-ar-badge{background:rgba(245,158,11,.16);color:#fbbf24}.exam-ar-statement{color:#f3f4f6;white-space:pre-line}
+.exam-option{position:relative;width:100%;display:flex;align-items:center;gap:12px;padding:15px 16px;color:#e5e7eb;background:#111827;border:1px solid #374151;border-radius:13px;cursor:pointer;text-align:left;font-size:14px;line-height:1.5;transition:background .2s,border-color .2s,transform .15s,box-shadow .2s}.exam-option:hover{background:#172033;border-color:#6366f1;transform:translateY(-1px)}.exam-option.selected{background:rgba(139,92,246,.14);border-color:#8b5cf6;box-shadow:0 0 0 1px rgba(139,92,246,.12),0 6px 20px rgba(139,92,246,.10)}.exam-option-badge{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border:1px solid #4b5563;border-radius:50%;font-size:12px;font-weight:900;transition:all .2s}.exam-option.selected .exam-option-badge{background:#8b5cf6;border-color:#8b5cf6;color:#fff}.exam-option-text{flex:1;min-width:0;overflow-wrap:anywhere}.exam-check{margin-left:auto;color:#c4b5fd;font-size:19px}
+@media(max-width:640px){.exam-question-text{font-size:17px;line-height:1.55}.exam-image-wrapper{padding:7px;margin:16px 0}.exam-image-wrapper img.exam-image{max-height:280px}.exam-match-grid{grid-template-columns:1fr}.exam-match-column:first-child{border-right:0;border-bottom:1px solid #29354a}.exam-match-header{padding:11px 13px}.exam-match-item{padding:11px 12px;font-size:13px}.exam-ar-card{padding:14px;font-size:14px}.exam-option{padding:13px;font-size:13px}}
+
+
+/* Match-the-Column: modern two-card layout */
+.exam-match-wrapper{margin:28px 0 8px}
+.exam-match-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;border:0;background:transparent;box-shadow:none;overflow:visible}
+.exam-match-column{min-width:0;background:rgba(12,16,31,.78);border:2px solid rgba(83,92,119,.28)!important;border-radius:28px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.16)}
+.exam-match-column:first-child{border-right:2px solid rgba(83,92,119,.28)!important}
+.exam-match-header{padding:28px 34px 14px;background:transparent;border:0;color:#965cff;font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:2px}
+.exam-match-items{padding:4px 34px 30px}
+.exam-match-item{display:block;padding:7px 0 10px;border:0;background:transparent;color:#e8e9ef;font-size:20px;line-height:1.55}
+.exam-match-item:nth-child(even){background:transparent}
+.exam-match-item-label{font-size:18px;color:#d9dbe4;margin-bottom:2px;font-weight:500}
+.exam-match-item-content{color:#bfc2ce;font-size:20px;line-height:1.55;overflow-wrap:anywhere}
+.exam-match-options{margin-top:30px;gap:16px}
+.exam-match-option{padding:20px 22px;border-radius:22px;background:#11192b;border:2px solid rgba(61,73,101,.45);font-size:19px;min-height:82px}
+.exam-match-option-label{color:#f1f2f7;font-size:20px;font-weight:500}
+.exam-match-radio{width:26px;height:26px;flex-basis:26px;border-width:2px}
+.exam-match-option.selected .exam-match-radio:after{width:12px;height:12px}
+@media(max-width:700px){
+  .exam-match-grid{gap:10px}
+  .exam-match-column{border-radius:20px}
+  .exam-match-header{padding:18px 16px 8px;font-size:13px;letter-spacing:1.5px}
+  .exam-match-items{padding:3px 16px 18px}
+  .exam-match-item{font-size:14px;line-height:1.4;padding:5px 0 8px}
+  .exam-match-item-label{font-size:14px}
+  .exam-match-item-content{font-size:14px;line-height:1.45}
+  .exam-match-options{margin-top:18px;gap:10px}
+  .exam-match-option{padding:14px 12px;border-radius:15px;min-height:60px;font-size:14px}
+  .exam-match-option-label{font-size:14px}
+  .exam-match-radio{width:21px;height:21px;flex-basis:21px}
+  .exam-match-option.selected .exam-match-radio:after{width:9px;height:9px}
+}
+
 </style>
 </head>
 <body>
@@ -1210,6 +1279,15 @@
     <div class="exam-actions">
       <button id="previousQuestionButton" class="btn secondary" onclick="prevQuestion()">PREVIOUS</button>
       <button id="nextQuestionButton" class="btn success" onclick="nextQuestion()">NEXT QUESTION ➔</button>
+    </div>
+  </div>
+
+
+  <!-- QUESTION IMAGE ZOOM MODAL -->
+  <div id="examImageModal" class="exam-image-modal" role="dialog" aria-modal="true" aria-label="Question image preview">
+    <div class="exam-image-modal-content" onclick="event.stopPropagation()">
+      <button type="button" class="exam-image-modal-close" onclick="closeExamImageModal()" aria-label="Close image">×</button>
+      <img id="examZoomedImage" src="" alt="Enlarged question diagram">
     </div>
   </div>
 
@@ -3043,20 +3121,227 @@ function updateExamTimer(seconds) {
   document.getElementById('testModalTimer').innerText = `⏱ ${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }
 
-function formatQuestionContent(questionText) {
-  const text = String(questionText || '');
-  const imageMatch = text.match(/https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s]*)?/i);
-  const image = imageMatch ? `<img class="exam-image" src="${escapeHtml(imageMatch[0])}" alt="Question illustration">` : '';
-  const cleanText = imageMatch ? text.replace(imageMatch[0], '').trim() : text;
-  if (cleanText.includes('Column I:')) {
-    const [left, right = ''] = cleanText.split('Column II:');
-    return `${image}<div class="exam-columns"><div class="exam-column">${escapeHtml(left)}</div><div class="exam-column">${escapeHtml(right)}</div></div>`;
+function getQuestionImage(question, text) {
+  const directImage = question && (question.imageUrl || question.image || question.imageURL || question.diagram);
+  if (directImage) return { url: String(directImage), text };
+  const md = text.match(/!\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/i);
+  if (md) return { url: md[1], text: text.replace(md[0], '').trim() };
+  const raw = text.match(/https?:\/\/[^\s<>"']+\.(?:jpg|jpeg|png|gif|webp|svg)(?:\?[^\s<>"']*)?/i);
+  if (raw) return { url: raw[0], text: text.replace(raw[0], '').trim() };
+  return { url: '', text };
+}
+
+function renderQuestionImage(imageUrl) {
+  if (!imageUrl) return '';
+  const safeUrl = escapeHtml(imageUrl);
+  return `<div class="exam-image-wrapper">
+    <img class="exam-image" src="${safeUrl}" alt="Question diagram" loading="lazy"
+      data-image-url="${safeUrl}" onclick="openExamImageModalFromElement(this)"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+    <div class="exam-image-error" style="display:none"><div class="exam-image-error-icon">🖼️</div><div>Unable to load this question image.</div></div>
+    <button type="button" class="exam-image-zoom-btn" data-image-url="${safeUrl}" onclick="openExamImageModalFromElement(this)">🔍 Click to Enlarge</button>
+  </div>`;
+}
+
+function openExamImageModalFromElement(el) {
+  const url = el && el.getAttribute('data-image-url');
+  if (!url) return;
+  const modal = document.getElementById('examImageModal');
+  const image = document.getElementById('examZoomedImage');
+  if (!modal || !image) return;
+  image.src = url;
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeExamImageModal() {
+  const modal = document.getElementById('examImageModal');
+  const image = document.getElementById('examZoomedImage');
+  if (!modal) return;
+  modal.classList.remove('open');
+  if (image) image.src = '';
+  document.body.style.overflow = '';
+}
+
+document.getElementById('examImageModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeExamImageModal();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('examImageModal');
+    if (modal && modal.classList.contains('open')) closeExamImageModal();
   }
-  if (cleanText.includes('Statement A:')) {
-    const statements = cleanText.split(/(?=Statement [AB]:)/g).filter(Boolean);
-    return `${image}${statements.map(statement => `<div class="exam-format-box">${escapeHtml(statement.trim())}</div>`).join('')}`;
+});
+
+function parseMatchColumn(text) {
+  const source = String(text || '').replace(/\r/g, '').trim();
+  const marker = source.match(/Column\s*(?:I|A)\s*:/i);
+  if (!marker) return null;
+
+  const afterColumnI = source.slice(marker.index + marker[0].length).trim();
+  const marker2 = afterColumnI.match(/Column\s*(?:II|B)\s*:/i);
+
+  let leftText = '';
+  let rightText = '';
+
+  if (marker2) {
+    leftText = afterColumnI.slice(0, marker2.index).trim();
+    rightText = afterColumnI.slice(marker2.index + marker2[0].length).trim();
+  } else {
+    // Some question-bank entries omit the literal "Column II:" and directly
+    // continue with 1., 2., 3., 4. after Column I.
+    // Find the first numbered Column-II item and use it as the split point.
+    const numericStart = afterColumnI.search(/(?:^|\s)(?:1|01)\s*[.)\-:]\s*/);
+    if (numericStart < 0) return null;
+    const actualStart = numericStart === 0 ? 0 : numericStart + 1;
+    leftText = afterColumnI.slice(0, actualStart).trim();
+    rightText = afterColumnI.slice(actualStart).trim();
   }
-  return `${image}<div class="exam-question-text">${escapeHtml(cleanText)}</div>`;
+
+  function parseItems(section, side) {
+    // Keep the section as text but normalize line breaks/spaces so inline
+    // question-bank formats such as A. X, B. Y, C. Z also work.
+    const cleaned = section.replace(/\s+/g, ' ').trim();
+    const labelPattern = side === 'left'
+      ? /(?:^|\s)([A-D])\s*[.)\-:]/gi
+      : /(?:^|\s)(iv|iii|ii|i|v|[1-5])\s*[.)\-:]/gi;
+
+    const matches = [];
+    let m;
+    while ((m = labelPattern.exec(cleaned)) !== null) {
+      const full = m[0];
+      const leading = (full.match(/^\s*/) || [''])[0].length;
+      matches.push({
+        label: m[1],
+        start: m.index + leading,
+        contentStart: labelPattern.lastIndex
+      });
+    }
+
+    const out = [];
+    matches.forEach((item, i) => {
+      const end = i + 1 < matches.length ? matches[i + 1].start : cleaned.length;
+      const value = cleaned.slice(item.contentStart, end)
+        .trim()
+        .replace(/[,;]+$/, '')
+        .trim();
+      if (value) out.push({ label: item.label.toUpperCase(), text: value });
+    });
+    return out;
+  }
+
+  const left = parseItems(leftText, 'left');
+  const right = parseItems(rightText, 'right');
+
+  // A valid Match-the-Column question should have both sides.
+  if (left.length >= 2 && right.length >= 2) return { left, right };
+  return null;
+}
+function renderMatchColumn(data) {
+  const renderItems = items => (items || []).map(item =>
+    `<div class="exam-match-item">
+      <div class="exam-match-item-label">${escapeHtml(item.label)}</div>
+      <div class="exam-match-item-content">${escapeHtml(item.text)}</div>
+    </div>`
+  ).join('');
+
+  return `<div class="exam-match-wrapper">
+    <div class="exam-match-grid">
+      <div class="exam-match-column">
+        <div class="exam-match-header">COLUMN I</div>
+        <div class="exam-match-items">${renderItems(data.left)}</div>
+      </div>
+      <div class="exam-match-column">
+        <div class="exam-match-header">COLUMN II</div>
+        <div class="exam-match-items">${renderItems(data.right)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderStructuredMatchColumn(columnA, columnB) {
+  const renderItems = items => (items || []).map(item =>
+    `<div class="exam-match-item">
+      <div class="exam-match-item-label">${escapeHtml(item.label)}</div>
+      <div class="exam-match-item-content">${escapeHtml(item.text)}</div>
+    </div>`
+  ).join('');
+
+  return `<div class="exam-match-wrapper">
+    <div class="exam-match-grid">
+      <div class="exam-match-column">
+        <div class="exam-match-header">COLUMN I</div>
+        <div class="exam-match-items">${renderItems(columnA)}</div>
+      </div>
+      <div class="exam-match-column">
+        <div class="exam-match-header">COLUMN II</div>
+        <div class="exam-match-items">${renderItems(columnB)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function parseAssertionReason(text) {
+  const a = text.match(/Assertion\s*\(A\)\s*[:\-]\s*([\s\S]*?)(?=\n\s*Reason\s*\(R\)\s*[:\-]|Reason\s*\(R\)\s*[:\-])/i);
+  const r = text.match(/Reason\s*\(R\)\s*[:\-]\s*([\s\S]*)$/i);
+  return a && r ? { assertion:a[1].trim(), reason:r[1].trim() } : null;
+}
+
+function renderAssertionReason(data) {
+  return `<div class="exam-ar-wrapper"><div class="exam-ar-card assertion"><div class="exam-ar-badge">🔵 Assertion (A)</div><div class="exam-ar-statement">${escapeHtml(data.assertion)}</div></div><div class="exam-ar-card reason"><div class="exam-ar-badge">🟡 Reason (R)</div><div class="exam-ar-statement">${escapeHtml(data.reason)}</div></div></div>`;
+}
+
+function isAssertionReasonQuestion(question, text) {
+  const type = String((question && (question.type || question.questionType)) || '').toLowerCase();
+  return type === 'assertion_reason' || type === 'assertion-reason' || !!parseAssertionReason(text);
+}
+
+function isMatchColumnQuestion(question, text) {
+  const type = String((question && (question.type || question.questionType)) || '').toLowerCase();
+  return type === 'match_column' || type === 'match-the-column' || (/Column\s*(?:I|A)\s*:/i.test(text) && /Column\s*(?:II|B)\s*:/i.test(text));
+}
+
+function formatQuestionContent(question) {
+  const rawText = String((question && question.q) || '');
+  const imageData = getQuestionImage(question, rawText);
+  const text = imageData.text.trim();
+  const imageHtml = renderQuestionImage(imageData.url);
+
+  if (isMatchColumnQuestion(question, text)) {
+    const stemMatch = text.match(/^([\s\S]*?)(?=Column\s*(?:I|A)\s*:)/i);
+    const stem = stemMatch ? stemMatch[1].trim() : '';
+    if (question && Array.isArray(question.columnA) && Array.isArray(question.columnB)) {
+      return `${stem ? `<div class="exam-question-text">${escapeHtml(stem)}</div>` : ''}${imageHtml}${renderStructuredMatchColumn(question.columnA, question.columnB)}`;
+    }
+    const parsed = parseMatchColumn(text);
+    if (parsed) return `${stem ? `<div class="exam-question-text">${escapeHtml(stem)}</div>` : ''}${imageHtml}${renderMatchColumn(parsed)}`;
+  }
+
+  const ar = parseAssertionReason(text);
+  if (isAssertionReasonQuestion(question, text) && ar) {
+    const stemMatch = text.match(/^([\s\S]*?)(?=Assertion\s*\(A\))/i);
+    const stem = stemMatch ? stemMatch[1].trim() : '';
+    return `${stem ? `<div class="exam-question-text">${escapeHtml(stem)}</div>` : ''}${imageHtml}${renderAssertionReason(ar)}`;
+  }
+
+  return `${imageHtml}<div class="exam-question-text">${escapeHtml(text)}</div>`;
+}
+
+function getQuestionOptions(question) {
+  return ['A','B','C','D'].filter(letter => {
+    const value = question && question[letter.toLowerCase()];
+    return value !== undefined && value !== null && String(value).trim() !== '';
+  }).map(letter => ({ letter, text: question[letter.toLowerCase()] }));
+}
+
+function renderOptionCards(options, selected) {
+  return `<div class="exam-options">${options.map(option => `<button type="button" class="exam-option ${selected === option.letter ? 'selected' : ''}" onclick="selectOption('${option.letter}')"><span class="exam-option-badge">${option.letter}</span><span class="exam-option-text">${escapeHtml(option.text)}</span>${selected === option.letter ? '<span class="exam-check">✓</span>' : ''}</button>`).join('')}</div>`;
+}
+
+function renderMatchOptions(question, selected) {
+  const options = getQuestionOptions(question);
+  return `<div class="exam-match-options">${options.map(option => `<button type="button" class="exam-match-option ${selected === option.letter ? 'selected' : ''}" onclick="selectOption('${option.letter}')"><span class="exam-match-radio"></span><span class="exam-match-option-label">(${option.letter})</span><span class="exam-option-text">${escapeHtml(option.text)}</span>${selected === option.letter ? '<span class="exam-check">✓</span>' : ''}</button>`).join('')}</div>`;
 }
 
 function renderCurrentQuestion() {
@@ -3066,7 +3351,27 @@ function renderCurrentQuestion() {
   const total = questions.length;
   const selected = userAnswersMap[currentQuestionIndex];
   document.getElementById('testProgressBar').style.width = `${((currentQuestionIndex + 1) / total) * 100}%`;
-  document.getElementById('testQuestionStage').innerHTML = `<div class="exam-question-number">QUESTION ${currentQuestionIndex + 1} OF ${total}</div>${formatQuestionContent(question.q)}<div class="exam-options">${['A', 'B', 'C', 'D'].filter(option => question[option.toLowerCase()] !== undefined && question[option.toLowerCase()] !== '').map(option => `<button class="exam-option ${selected === option ? 'selected' : ''}" onclick="selectOption('${option}')"><span class="exam-option-badge">${option}</span><span>${escapeHtml(question[option.toLowerCase()])}</span>${selected === option ? '<span class="exam-check">✓</span>' : ''}</button>`).join('')}</div>`;
+
+  const text = String(question.q || '');
+  const matchQuestion = isMatchColumnQuestion(question, text);
+  let content = `<div class="exam-question-stage"><div class="exam-question-number">QUESTION ${currentQuestionIndex + 1} OF ${total}</div>${formatQuestionContent(question)}`;
+
+  if (matchQuestion) {
+    content += renderMatchOptions(question, selected);
+  } else {
+    let options = getQuestionOptions(question);
+    if (isAssertionReasonQuestion(question, text) && !options.length) {
+      options = [
+        {letter:'A', text:'Both Assertion (A) and Reason (R) are true, and Reason (R) is the correct explanation of (A).'},
+        {letter:'B', text:'Both (A) and (R) are true, but (R) is NOT the correct explanation of (A).'},
+        {letter:'C', text:'(A) is true, but (R) is false.'},
+        {letter:'D', text:'(A) is false, but (R) is true.'}
+      ];
+    }
+    content += renderOptionCards(options, selected);
+  }
+  content += '</div>';
+  document.getElementById('testQuestionStage').innerHTML = content;
   document.getElementById('previousQuestionButton').disabled = currentQuestionIndex === 0;
   const nextButton = document.getElementById('nextQuestionButton');
   nextButton.innerText = currentQuestionIndex === total - 1 ? 'SUBMIT TEST 🚀' : 'NEXT QUESTION ➔';
