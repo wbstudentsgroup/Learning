@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google AdSense verification / Auto Ads -->
+  <meta name="google-adsense-account" content="ca-pub-9839533427708888">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9839533427708888" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="google-site-verification" content="QdWp6KclUO3WdEfBuTkQhXAhnqjiTWrIhc3XT16dT9E" />
 <title>WB STG Learning</title>
-
-<!-- Google AdSense -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9839533427708888" crossorigin="anonymous"></script>
 
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -303,18 +303,6 @@
     margin-top: 12px;
   }
   @media(min-width: 768px) { .main-card { padding: 24px; } }
-
-  /* GOOGLE ADSENSE IN-CONTENT AD AREAS */
-  .adsense-slot {
-    width: 100%;
-    min-height: 0;
-    margin: 18px 0;
-    display: block;
-    text-align: center;
-    overflow: hidden;
-  }
-  .adsense-slot:empty { display: none; }
-
 
   .grid-layout { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; }
   @media(min-width: 640px) {
@@ -714,10 +702,6 @@
             <p style="color:var(--text-muted); font-size: 13px;">Loading Home...</p>
           </div>
 
-          <!-- AdSense Auto Ads may place an ad in/around this page after approval.
-               Exact manual placement requires an AdSense Ad Unit slot ID. -->
-          <div class="adsense-slot" id="homeAdSlot" aria-label="Advertisement"></div>
-
           <!-- ENDLESS HORIZONTAL FEEDBACK MARQUEE -->
           <div class="feedback-section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -772,10 +756,6 @@
           <div id="allBooksList" class="books-grid-layout">
             <p style="color:var(--text-muted); font-size:13px;">Loading Books...</p>
           </div>
-
-          <!-- AdSense Auto Ads may place an ad around the Books page after approval.
-               Exact manual placement requires an AdSense Ad Unit slot ID. -->
-          <div class="adsense-slot" id="booksAdSlot" aria-label="Advertisement"></div>
         </div>
 
         <!-- TESTS PAGE -->
@@ -1653,7 +1633,7 @@ function toggleAccordion(header) {
   }
 }
 
-function switchPage(pageId, btnElement) {
+function switchPage(pageId, btnElement, updateUrl = true) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -1665,6 +1645,16 @@ function switchPage(pageId, btnElement) {
   }
   if (btnElement) btnElement.classList.add('active');
 
+  // Give Home, Books and Tests (and the other main sections) shareable URLs.
+  // Example: /Learning/#home, /Learning/#books, /Learning/#tests
+  const shareablePages = ['home', 'courses', 'books', 'tests', 'notices', 'dashboard', 'admin'];
+  if (updateUrl && shareablePages.includes(pageId)) {
+    const wantedHash = '#' + pageId;
+    if (window.location.hash !== wantedHash) {
+      history.pushState({ pageId }, '', `${window.location.pathname}${window.location.search}${wantedHash}`);
+    }
+  }
+
   if (pageId === 'home') { renderHomePage(); renderFeedbackMarquee(); renderFaqs(); }
   if (pageId === 'books') fetchBooks();
   if (pageId === 'tests') fetchTests();
@@ -1673,9 +1663,28 @@ function switchPage(pageId, btnElement) {
   if (pageId === 'admin') { populateAdminDropdowns(); fetchUsersList(); loadAdConfig(); renderAdminBatchEditList(); fetchExamDatesForAdmin(); fetchAdminFeedbacks(); fetchAdminTestResults(); fetchAdminBooksList(); fetchAdminFaqs(); }
 }
 
+function applyHashRoute() {
+  const hash = window.location.hash || '#home';
+  const bookHash = hash.match(/^#book\/(.+)$/);
+
+  if (bookHash) {
+    const restoreBook = booksData.find(book => book.id === decodeURIComponent(bookHash[1]));
+    if (restoreBook) {
+      openBookDetails(restoreBook.id, true);
+      return;
+    }
+    switchPage('books', null, false);
+    return;
+  }
+
+  const pageId = hash.replace(/^#/, '');
+  const allowedPages = ['home', 'courses', 'books', 'tests', 'notices', 'dashboard', 'admin'];
+  switchPage(allowedPages.includes(pageId) ? pageId : 'home', null, false);
+}
+
 function closeBookDetails() {
-  history.pushState({}, '', window.location.pathname + window.location.search);
-  switchPage('books');
+  history.pushState({}, '', `${window.location.pathname}${window.location.search}#books`);
+  switchPage('books', null, false);
 }
 
 function openLogin() { document.getElementById('loginModal').classList.add('open'); }
@@ -2060,16 +2069,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   fetchExamDates();
   renderFeedbackMarquee();
   renderFaqs();
-  const bookHash = window.location.hash.match(/^#book\/(.+)$/);
-  if (bookHash) {
-    const restoreBook = booksData.find(book => book.id === decodeURIComponent(bookHash[1]));
-    if (restoreBook) openBookDetails(restoreBook.id);
-  }
+  applyHashRoute();
 });
 
-window.addEventListener('popstate', () => {
-  if (!window.location.hash.startsWith('#book/')) switchPage('books');
-});
+window.addEventListener('popstate', applyHashRoute);
+window.addEventListener('hashchange', applyHashRoute);
 
 // FETCH COURSES
 async function fetchCourses() {
@@ -2300,7 +2304,7 @@ function openBookPdf(title, url, type, bookId = pendingBookId) {
   openInAppPdf(title, validUrl);
 }
 
-function openBookDetails(bookId) {
+function openBookDetails(bookId, fromHash = false) {
   if (!currentUser) {
     showToast('Login required to view book details');
     return openLogin();
@@ -2366,8 +2370,10 @@ function openBookDetails(bookId) {
   `).join('');
 
   list.innerHTML = html;
-  history.pushState({ bookId }, '', `${window.location.pathname}${window.location.search}#book/${encodeURIComponent(bookId)}`);
-  switchPage('bookView');
+  if (!fromHash) {
+    history.pushState({ bookId }, '', `${window.location.pathname}${window.location.search}#book/${encodeURIComponent(bookId)}`);
+  }
+  switchPage('bookView', null, false);
 }
 
 function closeBookChaptersModal() {
